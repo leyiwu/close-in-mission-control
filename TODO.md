@@ -3,6 +3,16 @@
 ## Next
 
 - [ ] **Shorten the Quit menu item** from "Quit Close in Mission Control" to just "Quit".
+- [ ] **Simplify the Homebrew install to two lines**, as MissionClose's README does:
+
+          brew trust --tap leyiwu/tap   # Homebrew 6+ asks you to trust third-party taps once
+          brew install --cask leyiwu/tap/close-in-mission-control
+
+      The fully qualified cask name taps automatically, so the separate `brew tap` line
+      should be unnecessary, and the inline comment explains the trust step better than
+      our paragraph. To verify first: that `brew trust` works on a tap that is not yet
+      tapped, and whether the `--tap` flag is needed (we used `brew trust leyiwu/tap`).
+      Test on a Homebrew with the tap removed and untrusted before changing the README.
 - [ ] **Understand how the logging works** (to study, not to change): how the app writes
       `~/Library/Logs/CloseInMissionControl/app.log`, what each kind of line records
       (Mission Control opening and closing, hovers, matches, clicks, close results), how
