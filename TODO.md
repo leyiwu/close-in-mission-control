@@ -45,6 +45,14 @@
 - [ ] Decide whether the Debug menu's dump item stays in release builds. It is useful for
       diagnosing breakage after a macOS update.
 
+## Later
+
+- [ ] **Re-arrange after a close.** Mission Control leaves an empty slot where a closed
+      window was; macOS does not re-lay out while it is open (verified on macOS 26.6: the
+      Dock still lists the dead thumbnail). A workaround was prototyped and shelved:
+      leave and re-enter Mission Control about 0.6 s after the last close. It was never
+      tested on screen, and it trades away "leave Mission Control untouched".
+
 ## Done
 
 - [x] Feasibility probe, detection, overlay button, click interception
