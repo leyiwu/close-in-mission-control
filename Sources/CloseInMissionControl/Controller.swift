@@ -22,6 +22,11 @@ final class Controller {
     private var lastRefresh = Date.distantPast
     private var target: LiveWindow?
     private var lastNote = ""
+    private var orderLogged = false
+    private var targetThumbnail: Thumbnail?
+    /// Thumbnails whose window we closed while Mission Control stayed open. Mission
+    /// Control keeps showing them as empty slots, so they must never match a window.
+    private var closedSlots: [Thumbnail] = []
 
     init(isPermitted: @escaping () -> Bool) {
         self.isPermitted = isPermitted
@@ -62,13 +67,28 @@ final class Controller {
             needsRefreshAfterSettle = true
         }
 
-        let thumbnails = ThumbnailScanner.thumbnails(in: mc)
-        guard settle.update(thumbnails) else { return hideButton(note: "moving") }
+        let onScreen = ThumbnailScanner.thumbnails(in: mc)
+        guard settle.update(onScreen) else { return hideButton(note: "moving") }
+        let thumbnails = onScreen.filter { !closedSlots.contains($0) }
         // Apps report incomplete window lists while Mission Control is still animating
         // (seen on macOS 26.6), so the list is read only once things have settled.
         if needsRefreshAfterSettle {
             needsRefreshAfterSettle = false
             refreshWindows()
+        }
+
+        // Diagnostic: does the Dock list thumbnails in the same order as each app lists
+        // its windows? If so, order can tell apart windows with the same title and shape.
+        if !orderLogged, !windows.isEmpty, Date().timeIntervalSince(lastRefresh) > 0.5 {
+            orderLogged = true
+            let candidates = windows.map(\.candidate)
+            let order = thumbnails.map { thumbnail -> String in
+                guard let i = WindowMatcher.match(thumbnail, in: candidates, allThumbnails: thumbnails) else {
+                    return "?\"\(thumbnail.title)\""
+                }
+                return "\(windows[i].appName)#\(windows[i].indexInApp)\"\(thumbnail.title)\""
+            }
+            Log.write("order: \(order.joined(separator: " | "))")
         }
 
         let mouse = NSEvent.mouseLocation
@@ -95,7 +115,8 @@ final class Controller {
         }
 
         target = windows[index]
-        note("hover \"\(hovered.title)\" -> \(windows[index].appName); button shown")
+        targetThumbnail = hovered
+        note("hover \"\(hovered.title)\" -> \(windows[index].appName)#\(windows[index].indexInApp); button shown")
         // Centred on the thumbnail's top-left corner.
         let corner = CGPoint(x: hovered.frame.minX - Overlay.size / 2, y: hovered.frame.minY - Overlay.size / 2)
         let hotRect = CGRect(origin: corner, size: CGSize(width: Overlay.size, height: Overlay.size))
@@ -111,11 +132,14 @@ final class Controller {
         _ = clicks.setEnabled(false)
         hideButton(note: "")
         settle.reset()
+        orderLogged = false
+        closedSlots = []
         schedule(Self.idleInterval)
     }
 
     private func hideButton(note text: String) {
         target = nil
+        targetThumbnail = nil
         clicks.hotRect = nil
         overlay.hide()
         note(text)
@@ -136,6 +160,7 @@ final class Controller {
 
     private func closeTarget() {
         guard let target else { return }
+        let slot = targetThumbnail
         Log.write("click: closing \"\(target.candidate.title)\" (\(target.appName))")
         AXUIElementSetMessagingTimeout(target.element, 1)
         let error = AXLive.pressCloseButton(target.element)
@@ -143,6 +168,7 @@ final class Controller {
         hideButton(note: "after click")
         settle.reset()
         windows.removeAll { CFEqual($0.element, target.element) }
+        if error == .success, let slot { closedSlots.append(slot) }
         needsRefreshAfterSettle = true
     }
 }

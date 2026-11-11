@@ -6,6 +6,8 @@ struct LiveWindow: @unchecked Sendable {
     var candidate: WindowCandidate
     var element: AXUIElement
     var appName: String
+    /// Position in the app's own AXWindows list (0 = first, normally the frontmost).
+    var indexInApp: Int
 }
 
 /// Lists every regular app's windows through Accessibility.
@@ -53,17 +55,19 @@ final class WindowDirectory {
 
     private nonisolated static func read(pid: pid_t, appName: String) -> (AXError, [LiveWindow]) {
         let (error, elements) = AXLive.windows(pid: pid, timeout: 1)
-        let windows = elements.compactMap { element -> LiveWindow? in
+        let windows = elements.enumerated().compactMap { index, element -> LiveWindow? in
             guard let frame = AXLive.frame(element) else { return nil }
             return LiveWindow(
                 candidate: WindowCandidate(
                     pid: pid,
                     title: AXLive.string(element, "AXTitle") ?? "",
                     frame: frame,
-                    hasCloseButton: AXLive.canClose(element)
+                    hasCloseButton: AXLive.canClose(element),
+                    orderInApp: index
                 ),
                 element: element,
-                appName: appName
+                appName: appName,
+                indexInApp: index
             )
         }
         return (error, windows)

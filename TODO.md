@@ -23,7 +23,6 @@
 
 ## Untested
 
-- [ ] Two windows with the same title and shape (should get no ×).
 - [ ] A window with unsaved changes (should show its save prompt).
 - [ ] An external monitor.
 - [ ] Stage Manager.
@@ -58,6 +57,7 @@
 - [x] MIT license, git repository, published on GitHub
 - [x] Universal release zip and `scripts/release.sh` (v0.1.0; v0.1.1 adds the app icon)
 - [x] README screenshot
+- [x] Identical windows in one app each get a ×, paired by front-to-back order (tested with Finder)
 - [x] Disk image with an Applications shortcut (`scripts/make-dmg.sh`); the zip stays for Homebrew
 - [x] Install verified end to end on macOS 26.6: browser download with the first-launch
       bypass, and `brew install --cask`

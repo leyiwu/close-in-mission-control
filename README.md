@@ -22,8 +22,9 @@ Swift + AppKit, public APIs only. Verified on macOS 26.6 with a single display.
 1. Mission Control is drawn by the Dock. While it is open, the Dock's Accessibility tree
    lists each window thumbnail with a title and frame.
 2. Once the thumbnails stop moving, the hovered one is matched to a real window by title
-   and aspect ratio. If that match is not unique, no button is shown: closing the wrong
-   window is worse than showing nothing.
+   and aspect ratio, and by front-to-back order when one app has several look-alikes. If
+   the match is still not unique, no button is shown: closing the wrong window is worse
+   than showing nothing.
 3. A small × is drawn in the thumbnail's corner. Mission Control does not deliver clicks
    to other apps' windows, so an event tap (active only while Mission Control is open)
    catches a left click that begins on the ×.
@@ -86,7 +87,8 @@ self-signed identity in your login keychain; builds signed with it keep the gran
 
 ## Known limitations
 
-- Windows that share both a title and a shape get no button.
+- Windows that share both a title and a shape are told apart by their front-to-back
+  order, which only works inside one app. Look-alikes in two different apps get no button.
 - Only windows on the current Space are reachable.
 - A window whose own red close button is disabled gets no button. Apps disable it while
   something blocks closing, such as a sign-in prompt or a sheet.

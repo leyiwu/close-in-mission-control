@@ -85,8 +85,41 @@ private func rect(_ x: Double, _ y: Double, _ w: Double, _ h: Double) -> CGRect 
         #expect(WindowMatcher.match(thumb, in: [window("Other"), window("Applications")]) == 1)
     }
 
-    @Test func duplicateTitlesWithSameShapeAreAmbiguous() {
-        #expect(WindowMatcher.match(thumb, in: [window("Applications"), window("Applications", pid: 2)]) == nil)
+    @Test func lookAlikesInDifferentAppsAreAmbiguous() {
+        let twin = Thumbnail(title: "Applications", frame: rect(100, 600, 466, 221))
+        let windows = [window("Applications"), window("Applications", pid: 2)]
+        #expect(WindowMatcher.match(thumb, in: windows, allThumbnails: [thumb, twin]) == nil)
+    }
+
+    // Two Finder windows on the same folder at the same size.
+    @Test func lookAlikesInOneAppArePairedByOrder() {
+        let front = Thumbnail(title: "Applications", frame: rect(871, 216, 466, 221))
+        let back = Thumbnail(title: "Applications", frame: rect(100, 600, 466, 221))
+        // Listed back-first on purpose: pairing must follow orderInApp, not array position.
+        let windows = [
+            WindowCandidate(pid: 1, title: "Applications", frame: rect(300, 160, 920, 436), hasCloseButton: true, orderInApp: 1),
+            WindowCandidate(pid: 1, title: "Applications", frame: rect(275, 141, 920, 436), hasCloseButton: true, orderInApp: 0),
+        ]
+        #expect(WindowMatcher.match(front, in: windows, allThumbnails: [front, back]) == 1)
+        #expect(WindowMatcher.match(back, in: windows, allThumbnails: [front, back]) == 0)
+    }
+
+    @Test func lookAlikesAreRefusedWhenCountsDisagree() {
+        // Two windows but only one such thumbnail on screen: the pairing is unknown.
+        let windows = [
+            WindowCandidate(pid: 1, title: "Applications", frame: rect(300, 160, 920, 436), hasCloseButton: true, orderInApp: 1),
+            WindowCandidate(pid: 1, title: "Applications", frame: rect(275, 141, 920, 436), hasCloseButton: true, orderInApp: 0),
+        ]
+        #expect(WindowMatcher.match(thumb, in: windows, allThumbnails: [thumb]) == nil)
+    }
+
+    @Test func lookAlikesAreRefusedWhenOneCannotBeClosed() {
+        let twin = Thumbnail(title: "Applications", frame: rect(100, 600, 466, 221))
+        let windows = [
+            WindowCandidate(pid: 1, title: "Applications", frame: rect(300, 160, 920, 436), hasCloseButton: false, orderInApp: 1),
+            WindowCandidate(pid: 1, title: "Applications", frame: rect(275, 141, 920, 436), hasCloseButton: true, orderInApp: 0),
+        ]
+        #expect(WindowMatcher.match(thumb, in: windows, allThumbnails: [thumb, twin]) == nil)
     }
 
     @Test func duplicateTitlesAreSeparatedByShape() {

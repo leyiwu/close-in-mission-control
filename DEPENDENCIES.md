@@ -10,6 +10,7 @@ in any release. The rule on failure is always: show no button rather than guess.
 | 3 | Window thumbnails are `AXButton` children of the group with `AXIdentifier == "mc.windows"`, each with a title and frame but no app name or window id | scanner, matcher | macOS 26.6 | no thumbnails found; no button shown |
 | 4 | A panel at `CGShieldingWindowLevel()` with `.stationary` is drawn above Mission Control | overlay | macOS 26.6 | button invisible; clicks in its area would still close a window, so this must be re-verified per release |
 | 5 | Mission Control does **not** deliver clicks to other apps' windows (verified: the click selected the thumbnail instead). A `CGEventTap` placed at the head of the HID/session tap chain sees the click first and can swallow it | click interceptor | macOS 26.6 | click falls through to Mission Control (window is selected, not closed) |
+| 6 | The Dock lists thumbnails front to back, and an app's `AXWindows` list is front to back, so the n-th look-alike thumbnail is the n-th look-alike window of that app | matcher (identical windows only) | macOS 26.6 | the wrong one of two identical windows could close; revert to showing no button on look-alikes |
 
 ## Known limitations
 

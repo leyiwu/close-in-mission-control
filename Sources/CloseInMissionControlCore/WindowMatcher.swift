@@ -7,12 +7,15 @@ public struct WindowCandidate: Equatable, Sendable {
     public var frame: CGRect
     /// False when there is no close button or it is disabled (a dialog is blocking the window).
     public var hasCloseButton: Bool
+    /// Position in the owning app's window list, front to back.
+    public var orderInApp: Int
 
-    public init(pid: Int32, title: String, frame: CGRect, hasCloseButton: Bool) {
+    public init(pid: Int32, title: String, frame: CGRect, hasCloseButton: Bool, orderInApp: Int = 0) {
         self.pid = pid
         self.title = title
         self.frame = frame
         self.hasCloseButton = hasCloseButton
+        self.orderInApp = orderInApp
     }
 }
 
@@ -42,8 +45,9 @@ public enum WindowMatcher {
         let titled = candidates.indices.filter { titleMatches(shown: thumbnail.title, real: candidates[$0].title) }
         if !titled.isEmpty {
             let hits = titled.filter { aspectMatches(thumbnail.frame, candidates[$0].frame, tolerance: aspectTolerance) }
-            guard hits.count == 1, candidates[hits[0]].hasCloseButton else { return nil }
-            return hits[0]
+            if hits.isEmpty { return nil }
+            if hits.count == 1 { return candidates[hits[0]].hasCloseButton ? hits[0] : nil }
+            return matchByOrder(thumbnail, hits: hits, in: candidates, allThumbnails: allThumbnails, tolerance: aspectTolerance)
         }
 
         let others = allThumbnails.filter { $0 != thumbnail }
@@ -56,6 +60,30 @@ public enum WindowMatcher {
             }
         }
         return unclaimed.count == 1 ? unclaimed[0] : nil
+    }
+
+    /// Several windows share this thumbnail's title and shape. Mission Control lists
+    /// thumbnails front to back, and an app lists its own windows front to back
+    /// (observed on macOS 26.6), so within one app the n-th look-alike thumbnail is the
+    /// n-th look-alike window. Anything that breaks that one-to-one pairing returns nil.
+    private static func matchByOrder(
+        _ thumbnail: Thumbnail, hits: [Int], in candidates: [WindowCandidate],
+        allThumbnails: [Thumbnail], tolerance: Double
+    ) -> Int? {
+        let first = candidates[hits[0]]
+        // Order is only comparable inside one app, and every window must be closable.
+        guard hits.allSatisfy({ candidates[$0].pid == first.pid && candidates[$0].hasCloseButton }) else {
+            return nil
+        }
+        let lookAlikes = allThumbnails.filter {
+            $0.title == thumbnail.title && aspectMatches($0.frame, first.frame, tolerance: tolerance)
+        }
+        guard lookAlikes.count == hits.count, let position = lookAlikes.firstIndex(of: thumbnail) else {
+            return nil
+        }
+        let ordered = hits.sorted { candidates[$0].orderInApp < candidates[$1].orderInApp }
+        guard Set(ordered.map { candidates[$0].orderInApp }).count == ordered.count else { return nil }
+        return ordered[position]
     }
 
     /// Mission Control shortens long titles with "…" in the middle or at the end.
