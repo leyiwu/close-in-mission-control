@@ -8,13 +8,7 @@
 - [ ] **Try a real Homebrew install** (`brew install --cask`); the cask passes Homebrew's
       style check and its download verifies, but it has not been installed end to end.
 - [ ] **Screenshot or short recording** of the × in Mission Control at the top of the README.
-- [ ] **App icon.** The app shows a blank icon in the Accessibility list.
-
-## README
-
-- [ ] **"Similar projects" section** replacing the current "Related" note. Link both and say
-      what each is for, along the lines of: "Want shortcuts, minimize, quit? Use MissionClose
-      or Mission Control Plus. Want only a close button that never guesses? This one."
+- [ ] **Next release (v0.1.1)** so the download includes the app icon; v0.1.0 has none.
 
 ## Community
 
@@ -60,4 +54,6 @@
 - [x] Stable local signing so the Accessibility grant survives rebuilds
 - [x] MIT license, git repository, published on GitHub
 - [x] Universal release zip and `scripts/release.sh` (v0.1.0)
+- [x] "Similar projects" section in the README
+- [x] App icon (`scripts/make-icon.sh` regenerates it)
 - [x] Homebrew tap: `leyiwu/homebrew-tap` (update its cask version and sha256 on each release)

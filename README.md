@@ -1,3 +1,5 @@
+<img src="Support/icon.png" width="96" alt="App icon">
+
 # Close in Mission Control
 
 A tiny macOS menu-bar utility that adds one thing to Mission Control: a close button on
@@ -93,10 +95,18 @@ self-signed identity in your login keychain; builds signed with it keep the gran
 - `Sources/CloseInMissionControl` — menu-bar shell, permission flow, overlay, event tap
 - `Tests` — unit tests for the pure logic
 
-## Related
+## Similar projects
 
-[MissionClose](https://github.com/beqaabu/MissionClose) solves the same problem with more
-features (minimize, full screen, quit, shortcuts, settings). Use it if you want those.
+This one does a single thing. If you want more, these are good choices:
+
+- [MissionClose](https://github.com/beqaabu/MissionClose) — free and open source. Adds
+  close, minimize and full-screen buttons, keyboard shortcuts, quitting apps, App Exposé
+  support and settings.
+- [Mission Control Plus](https://fadel.io/missioncontrolplus) — a paid app with a free
+  trial. Adds a close button plus ⌘W, ⌘M and ⌘Q shortcuts.
+
+Want shortcuts, minimize or quit? Use one of those. Want only a close button that never
+guesses which window you meant? This one.
 
 ## License
 
