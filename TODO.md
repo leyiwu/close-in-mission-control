@@ -31,6 +31,10 @@
 - [ ] App Exposé (⌃↓) support; its Accessibility group is named `appexpose`.
 - [ ] Cheaper idle detection. The app polls the Dock 4 times a second; measured 0% CPU.
 - [ ] Development-only tweak file for button colour and size, to tune the look without rebuilding.
+- [ ] **Shortcut keys** for the hovered window, such as ⌘W to close or ⌘M to minimize.
+      Low priority and possibly never: the pointer already has to be on the window to
+      select it, at which point clicking the × is just as quick, and Mission Control has
+      no keyboard way to pick a window. Minimize would also widen the close-only scope.
 
 ## Cleanup
 
