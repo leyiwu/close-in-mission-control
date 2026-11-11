@@ -42,7 +42,12 @@ public enum WindowMatcher {
 
         // Title matches are looked up among all windows, closable or not: if this
         // thumbnail's own window cannot be closed, we must not fall back to another one.
-        let titled = candidates.indices.filter { titleMatches(shown: thumbnail.title, real: candidates[$0].title) }
+        // An exact title wins; otherwise accept a window whose title is the thumbnail's
+        // label plus an app suffix (Chrome: "New Tab" vs "New Tab - Google Chrome - Me").
+        var titled = candidates.indices.filter { titleMatches(shown: thumbnail.title, real: candidates[$0].title) }
+        if titled.isEmpty {
+            titled = candidates.indices.filter { titleHasSuffix(shown: thumbnail.title, real: candidates[$0].title) }
+        }
         if !titled.isEmpty {
             let hits = titled.filter { aspectMatches(thumbnail.frame, candidates[$0].frame, tolerance: aspectTolerance) }
             if hits.isEmpty { return nil }
@@ -55,7 +60,8 @@ public enum WindowMatcher {
             let window = candidates[index]
             guard aspectMatches(thumbnail.frame, window.frame, tolerance: fallbackAspectTolerance) else { return false }
             return !others.contains { other in
-                titleMatches(shown: other.title, real: window.title)
+                (titleMatches(shown: other.title, real: window.title)
+                    || titleHasSuffix(shown: other.title, real: window.title))
                     && aspectMatches(other.frame, window.frame, tolerance: aspectTolerance)
             }
         }
@@ -94,6 +100,13 @@ public enum WindowMatcher {
         let parts = shown.components(separatedBy: "…")
         guard let head = parts.first, let tail = parts.last, !(head.isEmpty && tail.isEmpty) else { return false }
         return real.hasPrefix(head) && real.hasSuffix(tail) && real.count >= head.count + tail.count
+    }
+
+    /// True when the window's title is the thumbnail's label followed by " - something".
+    static func titleHasSuffix(shown: String, real: String) -> Bool {
+        guard !shown.isEmpty, real.count > shown.count, real.hasPrefix(shown) else { return false }
+        let rest = real.dropFirst(shown.count)
+        return [" - ", " — ", " – "].contains { rest.hasPrefix($0) }
     }
 
     public static func aspectMatches(_ a: CGRect, _ b: CGRect, tolerance: Double) -> Bool {

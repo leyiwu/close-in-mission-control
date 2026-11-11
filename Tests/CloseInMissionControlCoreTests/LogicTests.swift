@@ -170,6 +170,30 @@ private func rect(_ x: Double, _ y: Double, _ w: Double, _ h: Double) -> CGRect 
         #expect(WindowMatcher.match(thumb, in: [odd, sameShape], allThumbnails: [thumb]) == nil)
     }
 
+    // Chrome: the thumbnail says "New Tab", the window "New Tab - Google Chrome - Me".
+    @Test func appSuffixedTitlesMatchAndPairByOrder() {
+        let front = Thumbnail(title: "New Tab", frame: rect(871, 216, 466, 221))
+        let back = Thumbnail(title: "New Tab", frame: rect(100, 600, 466, 221))
+        let windows = [
+            WindowCandidate(pid: 7, title: "New Tab - Google Chrome - Me", frame: rect(0, 0, 920, 436), hasCloseButton: true, orderInApp: 0),
+            WindowCandidate(pid: 7, title: "New Tab - Google Chrome - Me", frame: rect(20, 20, 920, 436), hasCloseButton: true, orderInApp: 1),
+            WindowCandidate(pid: 9, title: "Sticky", frame: rect(0, 0, 920, 436), hasCloseButton: true),
+        ]
+        #expect(WindowMatcher.match(front, in: windows, allThumbnails: [front, back]) == 0)
+        #expect(WindowMatcher.match(back, in: windows, allThumbnails: [front, back]) == 1)
+    }
+
+    @Test func exactTitleBeatsSuffixedTitle() {
+        let windows = [window("Applications - Something", pid: 2), window("Applications")]
+        #expect(WindowMatcher.match(thumb, in: windows, allThumbnails: [thumb]) == 1)
+    }
+
+    @Test func suffixNeedsASeparator() {
+        #expect(WindowMatcher.titleHasSuffix(shown: "New Tab", real: "New Tab - Google Chrome"))
+        #expect(!WindowMatcher.titleHasSuffix(shown: "New Tab", real: "New Tabs"))
+        #expect(!WindowMatcher.titleHasSuffix(shown: "New Tab", real: "New Tab"))
+    }
+
     @Test func truncatedTitles() {
         #expect(WindowMatcher.titleMatches(shown: "Can Jackie…YouTube", real: "Can Jackie Chan play - YouTube"))
         #expect(WindowMatcher.titleMatches(shown: "- Skims pants…", real: "- Skims pants and more"))
