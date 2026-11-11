@@ -5,7 +5,7 @@ import AppKit
 /// so the click is handled by `ClickInterceptor`.
 @MainActor
 final class Overlay {
-    static let size: CGFloat = 26
+    static let size: CGFloat = 21
     private let panel: NSPanel
     private let button: CloseButtonView
     private(set) var isVisible = false
@@ -62,24 +62,30 @@ private final class CloseButtonView: NSView {
     var highlighted = false { didSet { needsDisplay = true } }
 
     override func draw(_ dirtyRect: NSRect) {
-        let circle = bounds.insetBy(dx: 2, dy: 2)
-        (highlighted ? NSColor.systemRed : NSColor.black.withAlphaComponent(0.55)).setFill()
+        // Silver disc that turns grey under the pointer, like a tint laid over it.
+        let circle = bounds.insetBy(dx: 1.5, dy: 1.5)
+        // Default is a bright silver, lighter than MacBook "Silver" (about #F5F5F7).
+        let fill = highlighted
+            ? NSColor(white: 0.52, alpha: 1)
+            : NSColor(srgbRed: 0.961, green: 0.961, blue: 0.969, alpha: 1)
+        fill.setFill()
         NSBezierPath(ovalIn: circle).fill()
-        NSColor.white.withAlphaComponent(0.35).setStroke()
+        NSColor(white: highlighted ? 1 : 0, alpha: highlighted ? 0.5 : 0.18).setStroke()
         let ring = NSBezierPath(ovalIn: circle.insetBy(dx: 0.5, dy: 0.5))
         ring.lineWidth = 1
         ring.stroke()
 
-        let arm = circle.width * 0.2
+        let arm: CGFloat = 2.8 // fixed glyph size, independent of the disc
         let center = NSPoint(x: bounds.midX, y: bounds.midY)
         let cross = NSBezierPath()
         cross.move(to: NSPoint(x: center.x - arm, y: center.y - arm))
         cross.line(to: NSPoint(x: center.x + arm, y: center.y + arm))
         cross.move(to: NSPoint(x: center.x - arm, y: center.y + arm))
         cross.line(to: NSPoint(x: center.x + arm, y: center.y - arm))
-        cross.lineWidth = 1.8
+        cross.lineWidth = 1.3
         cross.lineCapStyle = .round
-        NSColor.white.setStroke()
+        // Dark glyph: white would wash out against silver.
+        NSColor(white: 0.16, alpha: 1).setStroke()
         cross.stroke()
     }
 }

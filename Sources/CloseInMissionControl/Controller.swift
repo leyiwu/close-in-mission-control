@@ -7,7 +7,6 @@ import CloseInMissionControlCore
 final class Controller {
     private static let idleInterval = 0.25   // waiting for Mission Control to open
     private static let activeInterval = 0.05 // tracking thumbnails while it is open
-    private static let inset: CGFloat = 8    // button offset inside the thumbnail's corner
     private static let retryInterval = 0.3   // re-read window lists while a hover has no match
 
     private let isPermitted: () -> Bool
@@ -75,6 +74,12 @@ final class Controller {
         let mouse = NSEvent.mouseLocation
         let primaryHeight = NSScreen.screens.first?.frame.height ?? 0
         let pointer = CGPoint(x: mouse.x, y: primaryHeight - mouse.y)
+        // The button straddles the thumbnail's corner, so half of it lies outside the
+        // thumbnail. While the pointer is on the button, keep the current target.
+        if target != nil, let rect = clicks.hotRect, rect.contains(pointer) {
+            overlay.setHighlighted(true)
+            return
+        }
         guard let hovered = HoverResolver.hovered(at: pointer, in: thumbnails) else {
             return hideButton(note: "settled, \(thumbnails.count) thumbnails, none hovered")
         }
@@ -91,7 +96,8 @@ final class Controller {
 
         target = windows[index]
         note("hover \"\(hovered.title)\" -> \(windows[index].appName); button shown")
-        let corner = CGPoint(x: hovered.frame.minX + Self.inset, y: hovered.frame.minY + Self.inset)
+        // Centred on the thumbnail's top-left corner.
+        let corner = CGPoint(x: hovered.frame.minX - Overlay.size / 2, y: hovered.frame.minY - Overlay.size / 2)
         let hotRect = CGRect(origin: corner, size: CGSize(width: Overlay.size, height: Overlay.size))
         clicks.hotRect = hotRect
         overlay.setHighlighted(hotRect.contains(pointer))
