@@ -19,12 +19,6 @@
 
 ## Bugs
 
-- [ ] **Windows blocked by a dialog do not close.** Seen with Maps while its first-run
-      "Get Notified…" dialog was up: the × shows, the click does nothing. Likely cause: a
-      window with a modal sheet or welcome dialog has its close button disabled, so
-      pressing it has no effect (apps that have not finished first-run setup behave this
-      way). Not yet confirmed from the log. Possible fix: read the close button's
-      `AXEnabled` and show no × when it is disabled.
 - [ ] **QuickTime Player never answers** window-list requests (AX error -25204), so its
       windows would get no ×.
 - [ ] Other apps whose thumbnail label differs from the window title may still fail if the
