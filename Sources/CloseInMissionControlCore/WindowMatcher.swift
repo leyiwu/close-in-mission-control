@@ -21,18 +21,37 @@ public enum WindowMatcher {
     /// Mission Control gives no app name or window id, so we match on title and aspect
     /// ratio (thumbnails are uniformly scaled). Anything other than exactly one match
     /// returns nil: closing the wrong window is worse than showing no button.
+    ///
+    /// Some apps label their thumbnail differently from the window's AX title (seen:
+    /// Photos). When no window carries the thumbnail's title at all, we fall back to the
+    /// one window of the same shape that no other thumbnail accounts for.
+    ///
+    /// - Parameter allThumbnails: every thumbnail on screen, used only by the fallback.
     public static func match(
         _ thumbnail: Thumbnail,
         in candidates: [WindowCandidate],
-        aspectTolerance: Double = 0.04
+        allThumbnails: [Thumbnail] = [],
+        aspectTolerance: Double = 0.04,
+        fallbackAspectTolerance: Double = 0.015
     ) -> Int? {
-        let hits = candidates.indices.filter { index in
-            let window = candidates[index]
-            return window.hasCloseButton
-                && titleMatches(shown: thumbnail.title, real: window.title)
-                && aspectMatches(thumbnail.frame, window.frame, tolerance: aspectTolerance)
+        let closable = candidates.indices.filter { candidates[$0].hasCloseButton }
+
+        let titled = closable.filter { titleMatches(shown: thumbnail.title, real: candidates[$0].title) }
+        if !titled.isEmpty {
+            let hits = titled.filter { aspectMatches(thumbnail.frame, candidates[$0].frame, tolerance: aspectTolerance) }
+            return hits.count == 1 ? hits[0] : nil
         }
-        return hits.count == 1 ? hits[0] : nil
+
+        let others = allThumbnails.filter { $0 != thumbnail }
+        let unclaimed = closable.filter { index in
+            let window = candidates[index]
+            guard aspectMatches(thumbnail.frame, window.frame, tolerance: fallbackAspectTolerance) else { return false }
+            return !others.contains { other in
+                titleMatches(shown: other.title, real: window.title)
+                    && aspectMatches(other.frame, window.frame, tolerance: aspectTolerance)
+            }
+        }
+        return unclaimed.count == 1 ? unclaimed[0] : nil
     }
 
     /// Mission Control shortens long titles with "…" in the middle or at the end.
@@ -45,7 +64,7 @@ public enum WindowMatcher {
         return real.hasPrefix(head) && real.hasSuffix(tail) && real.count >= head.count + tail.count
     }
 
-    static func aspectMatches(_ a: CGRect, _ b: CGRect, tolerance: Double) -> Bool {
+    public static func aspectMatches(_ a: CGRect, _ b: CGRect, tolerance: Double) -> Bool {
         guard a.height > 0, b.height > 0, b.width > 0 else { return false }
         let ra = a.width / a.height
         let rb = b.width / b.height

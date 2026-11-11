@@ -102,6 +102,34 @@ private func rect(_ x: Double, _ y: Double, _ w: Double, _ h: Double) -> CGRect 
         #expect(WindowMatcher.match(thumb, in: [window("Applications", rect(0, 0, 500, 500))]) == nil)
     }
 
+    // Photos labels its thumbnail "Memories" while the window itself has another title.
+    @Test func differingTitleFallsBackToTheOnlyUnclaimedWindowOfThatShape() {
+        let memories = Thumbnail(title: "Memories", frame: rect(844, 501, 608, 365))
+        let photos = window("Photos", rect(100, 100, 1216, 730))
+        let finder = window("Applications")
+        let index = WindowMatcher.match(memories, in: [finder, photos], allThumbnails: [thumb, memories])
+        #expect(index == 1)
+    }
+
+    @Test func fallbackSkipsWindowsThatAnotherThumbnailAccountsFor() {
+        // Same shape as the Finder window, but that window belongs to the "Applications" thumbnail.
+        let mystery = Thumbnail(title: "Mystery", frame: rect(0, 0, 233, 110.5))
+        #expect(WindowMatcher.match(mystery, in: [window("Applications")], allThumbnails: [thumb, mystery]) == nil)
+    }
+
+    @Test func fallbackRefusesTwoCandidates() {
+        let memories = Thumbnail(title: "Memories", frame: rect(844, 501, 608, 365))
+        let a = window("Photos", rect(0, 0, 1216, 730))
+        let b = window("Other", rect(0, 0, 608, 365), pid: 2)
+        #expect(WindowMatcher.match(memories, in: [a, b], allThumbnails: [memories]) == nil)
+    }
+
+    @Test func fallbackIsNotUsedWhenATitleMatchesButShapeDoesNot() {
+        let odd = window("Applications", rect(0, 0, 500, 500))
+        let sameShape = window("Unrelated", pid: 2)
+        #expect(WindowMatcher.match(thumb, in: [odd, sameShape], allThumbnails: [thumb]) == nil)
+    }
+
     @Test func truncatedTitles() {
         #expect(WindowMatcher.titleMatches(shown: "Can Jackie…YouTube", real: "Can Jackie Chan play - YouTube"))
         #expect(WindowMatcher.titleMatches(shown: "- Skims pants…", real: "- Skims pants and more"))

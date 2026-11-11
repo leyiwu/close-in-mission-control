@@ -79,8 +79,12 @@ final class Controller {
             return hideButton(note: "settled, \(thumbnails.count) thumbnails, none hovered")
         }
 
-        guard let index = WindowMatcher.match(hovered, in: windows.map(\.candidate)) else {
-            hideButton(note: "hover \"\(hovered.title)\": no unique window match")
+        guard let index = WindowMatcher.match(hovered, in: windows.map(\.candidate), allThumbnails: thumbnails) else {
+            // Record which real windows have the same shape, to diagnose title mismatches.
+            let sameShape = windows
+                .filter { WindowMatcher.aspectMatches(hovered.frame, $0.candidate.frame, tolerance: 0.04) }
+                .map { "\($0.appName):\"\($0.candidate.title)\"" }
+            hideButton(note: "hover \"\(hovered.title)\": no unique window match; same-shape windows: \(sameShape)")
             if Date().timeIntervalSince(lastRefresh) > Self.retryInterval { refreshWindows() }
             return
         }
