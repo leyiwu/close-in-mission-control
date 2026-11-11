@@ -1,5 +1,15 @@
 # To do
 
+## Next
+
+- [ ] **Shorten the Quit menu item** from "Quit Close in Mission Control" to just "Quit".
+- [ ] **Understand how the logging works** (to study, not to change): how the app writes
+      `~/Library/Logs/CloseInMissionControl/app.log`, what each kind of line records
+      (Mission Control opening and closing, hovers, matches, clicks, close results), how
+      the Debug menu's dump captures the Dock's Accessibility tree, and how those files
+      were read during development to diagnose problems. Start with `Log.swift`,
+      `Probe.swift` and the `Log.write` calls in `Controller.swift`.
+
 ## Adoption
 
 - [ ] **Verify on an Intel Mac.** The Intel half of the universal build compiles but has
