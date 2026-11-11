@@ -29,14 +29,31 @@ Swift + AppKit, public APIs only. Verified on macOS 26.6 with a single display.
 All of this rests on undocumented macOS behaviour, listed in [DEPENDENCIES.md](DEPENDENCIES.md).
 Expect macOS updates to break it from time to time.
 
-## Build and run
+## Install
+
+1. Download `Close-in-Mission-Control-<version>.zip` from the
+   [latest release](https://github.com/leyiwu/close-in-mission-control/releases/latest).
+2. Unzip it and move **Close in Mission Control** to your Applications folder.
+3. Open it. macOS will refuse the first time, because the app is not notarized by Apple
+   (that needs a paid developer account). To allow it, open System Settings → Privacy &
+   Security, scroll down, and click **Open Anyway**. Or, in Terminal:
+
+       xattr -dr com.apple.quarantine "/Applications/Close in Mission Control.app"
+
+4. Grant Accessibility access when asked (see [Permission](#permission)).
+
+The app runs on Apple silicon and Intel Macs with macOS 14 or later. Releases are signed
+with the same self-signed certificate each time, so the Accessibility grant should carry
+over when you replace the app with a newer version.
+
+## Build from source
 
 Requires macOS 14+ and the Swift 6 toolchain (Xcode or the Command Line Tools).
 
     ./scripts/build-app.sh
     open "build/Close in Mission Control.app"
 
-Tests: `./scripts/test.sh`
+Tests: `./scripts/test.sh`. Release zip: `./scripts/release.sh`.
 
 ## Permission
 

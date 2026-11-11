@@ -2,9 +2,9 @@
 
 ## Adoption
 
-- [ ] **Prebuilt release.** Ship a release zip on GitHub so nobody needs the Swift 6
-      toolchain. The build is not signed by Apple, so the README must explain the
-      first-launch bypass.
+- [ ] **Verify the install steps** on a freshly downloaded copy of the release (the
+      first-launch bypass has only been checked against how macOS documents it), and on
+      an Intel Mac.
 - [ ] **Homebrew tap** with a cask that installs the release zip.
 - [ ] **Screenshot or short recording** of the × in Mission Control at the top of the README.
 - [ ] **App icon.** The app shows a blank icon in the Accessibility list.
@@ -58,3 +58,4 @@
 - [x] Launch at Login menu item
 - [x] Stable local signing so the Accessibility grant survives rebuilds
 - [x] MIT license, git repository, published on GitHub
+- [x] Universal release zip and `scripts/release.sh` (v0.1.0)
