@@ -16,8 +16,6 @@
 
 ## Bugs
 
-- [ ] **QuickTime Player never answers** window-list requests (AX error -25204), so its
-      windows would get no ×.
 - [ ] Other apps whose thumbnail label differs from the window title may still fail if the
       shape fallback is ambiguous. Collect cases from the log.
 
@@ -46,6 +44,9 @@
       Dock still lists the dead thumbnail). A workaround was prototyped and shelved:
       leave and re-enter Mission Control about 0.6 s after the last close. It was never
       tested on screen, and it trades away "leave Mission Control untouched".
+      Related: a QuickTime Player window kept playing in its thumbnail after its × was
+      clicked, and only went away on leaving Mission Control. Same root cause: Mission
+      Control does not refresh while it is open, so what it shows can lag behind reality.
 
 ## Done
 
@@ -57,6 +58,7 @@
 - [x] MIT license, git repository, published on GitHub
 - [x] Universal release zip and `scripts/release.sh` (v0.1.0; v0.1.1 adds the app icon)
 - [x] README screenshot
+- [x] QuickTime Player: answers normally with a movie open; only its "Open" file picker gets no × (correct)
 - [x] Homebrew upgrade 0.1.2 → 0.1.3 verified: no first-launch block, Accessibility grant carried over
 - [x] Unsaved-changes windows: the save prompt appears and the app switches to that window (tested with TextEdit)
 - [x] Identical windows in one app each get a ×, paired by front-to-back order (tested with Finder)
