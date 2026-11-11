@@ -13,6 +13,16 @@
       our paragraph. To verify first: that `brew trust` works on a tap that is not yet
       tapped, and whether the `--tap` flag is needed (we used `brew trust leyiwu/tap`).
       Test on a Homebrew with the tap removed and untrusted before changing the README.
+- [ ] **Add an Uninstall section to the README.** Anyone trying an open-source tool should
+      be able to remove it completely. Cover: quit the app; turn off Launch at Login;
+      delete the app from Applications (or `brew uninstall --cask close-in-mission-control`,
+      plus `--zap` to remove its log folder); remove it from System Settings → Privacy &
+      Security → Accessibility; delete `~/Library/Logs/CloseInMissionControl`. State
+      plainly that the app stores nothing else.
+- [ ] **Simplify the README for everyday users.** It reads as too technical. Lead with
+      what it does, the screenshot, install and uninstall in plain words. Move "How it
+      works", the undocumented-behaviour notes, build-from-source and the layout further
+      down or into a separate file for developers.
 - [ ] **Understand how the logging works** (to study, not to change): how the app writes
       `~/Library/Logs/CloseInMissionControl/app.log`, what each kind of line records
       (Mission Control opening and closing, hovers, matches, clicks, close results), how
