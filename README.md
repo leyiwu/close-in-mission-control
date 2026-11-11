@@ -50,9 +50,11 @@ Or by hand:
 1. Download `Close-in-Mission-Control-<version>.zip` from the
    [latest release](https://github.com/leyiwu/close-in-mission-control/releases/latest).
 2. Unzip it and move **Close in Mission Control** to your Applications folder.
-3. Open it. macOS will refuse the first time, because the app is not notarized by Apple
-   (that needs a paid developer account). To allow it, open System Settings → Privacy &
-   Security, scroll down, and click **Open Anyway**. Or, in Terminal:
+3. Open it. macOS will refuse the first time with a dialog titled **"Close in Mission
+   Control" Not Opened** ("Apple could not verify…"), because the app is not notarized by
+   Apple (that needs a paid developer account). Click **Done**, not Move to Trash. Then
+   open System Settings → Privacy & Security, scroll down, and click **Open Anyway**.
+   Or, in Terminal:
 
        xattr -dr com.apple.quarantine "/Applications/Close in Mission Control.app"
 

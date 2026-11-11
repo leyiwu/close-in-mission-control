@@ -2,11 +2,8 @@
 
 ## Adoption
 
-- [ ] **Verify the install steps** on a freshly downloaded copy of the release (the
-      first-launch bypass has only been checked against how macOS documents it), and on
-      an Intel Mac.
-- [ ] **Try a real Homebrew install** (`brew install --cask`); the cask passes Homebrew's
-      style check and its download verifies, but it has not been installed end to end.
+- [ ] **Verify on an Intel Mac.** The Intel half of the universal build compiles but has
+      never been run.
 
 ## Community
 
@@ -61,6 +58,8 @@
 - [x] MIT license, git repository, published on GitHub
 - [x] Universal release zip and `scripts/release.sh` (v0.1.0; v0.1.1 adds the app icon)
 - [x] README screenshot
+- [x] Install verified end to end on macOS 26.6: browser download with the first-launch
+      bypass, and `brew install --cask`
 - [x] "Similar projects" section in the README
 - [x] App icon (`scripts/make-icon.sh` regenerates it)
 - [x] Homebrew tap: `leyiwu/homebrew-tap` (update its cask version and sha256 on each release)
