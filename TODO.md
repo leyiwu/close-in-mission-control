@@ -7,8 +7,6 @@
       an Intel Mac.
 - [ ] **Try a real Homebrew install** (`brew install --cask`); the cask passes Homebrew's
       style check and its download verifies, but it has not been installed end to end.
-- [ ] **Short recording** of the × in action for the README (a still screenshot is in).
-- [ ] **Next release (v0.1.1)** so the download includes the app icon; v0.1.0 has none.
 
 ## Community
 
@@ -67,7 +65,8 @@
 - [x] Launch at Login menu item
 - [x] Stable local signing so the Accessibility grant survives rebuilds
 - [x] MIT license, git repository, published on GitHub
-- [x] Universal release zip and `scripts/release.sh` (v0.1.0)
+- [x] Universal release zip and `scripts/release.sh` (v0.1.0; v0.1.1 adds the app icon)
+- [x] README screenshot
 - [x] "Similar projects" section in the README
 - [x] App icon (`scripts/make-icon.sh` regenerates it)
 - [x] Homebrew tap: `leyiwu/homebrew-tap` (update its cask version and sha256 on each release)
