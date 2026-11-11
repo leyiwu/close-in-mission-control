@@ -5,6 +5,16 @@
 - [ ] **Verify on an Intel Mac.** The Intel half of the universal build compiles but has
       never been run.
 
+- [ ] **Fund notarization through donations.**
+      1. Make a short video introducing the project: open source, free to download.
+      2. Add a "Buy me a coffee" link (README and video description) with a stated goal
+         of US$99, the yearly cost of the Apple Developer Program.
+      3. When the goal is reached: enrol, sign with a Developer ID certificate, notarize,
+         ship a release that opens without the first-launch block, and close the
+         donation link.
+      Open points: the fee recurs every year; the Developer ID certificate shows a
+      legal name; existing users re-grant Accessibility once when the signature changes.
+
 ## Community
 
 - [ ] **Reach out to the MissionClose author.** Open a friendly issue: built something
