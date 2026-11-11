@@ -31,6 +31,18 @@ Expect macOS updates to break it from time to time.
 
 ## Install
 
+With Homebrew:
+
+    brew tap leyiwu/tap
+    brew trust leyiwu/tap
+    brew install --cask close-in-mission-control
+
+(`brew trust` is needed on recent Homebrew versions, which refuse third-party taps until
+you trust them; skip it if your Homebrew does not have the command.) Then continue from
+step 3 below.
+
+Or by hand:
+
 1. Download `Close-in-Mission-Control-<version>.zip` from the
    [latest release](https://github.com/leyiwu/close-in-mission-control/releases/latest).
 2. Unzip it and move **Close in Mission Control** to your Applications folder.

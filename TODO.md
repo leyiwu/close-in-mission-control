@@ -5,7 +5,8 @@
 - [ ] **Verify the install steps** on a freshly downloaded copy of the release (the
       first-launch bypass has only been checked against how macOS documents it), and on
       an Intel Mac.
-- [ ] **Homebrew tap** with a cask that installs the release zip.
+- [ ] **Try a real Homebrew install** (`brew install --cask`); the cask passes Homebrew's
+      style check and its download verifies, but it has not been installed end to end.
 - [ ] **Screenshot or short recording** of the × in Mission Control at the top of the README.
 - [ ] **App icon.** The app shows a blank icon in the Accessibility list.
 
@@ -59,3 +60,4 @@
 - [x] Stable local signing so the Accessibility grant survives rebuilds
 - [x] MIT license, git repository, published on GitHub
 - [x] Universal release zip and `scripts/release.sh` (v0.1.0)
+- [x] Homebrew tap: `leyiwu/homebrew-tap` (update its cask version and sha256 on each release)
