@@ -60,7 +60,7 @@ final class WindowDirectory {
                     pid: pid,
                     title: AXLive.string(element, "AXTitle") ?? "",
                     frame: frame,
-                    hasCloseButton: AXLive.hasCloseButton(element)
+                    hasCloseButton: AXLive.canClose(element)
                 ),
                 element: element,
                 appName: appName

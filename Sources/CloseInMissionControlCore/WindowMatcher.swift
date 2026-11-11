@@ -5,6 +5,7 @@ public struct WindowCandidate: Equatable, Sendable {
     public var pid: Int32
     public var title: String
     public var frame: CGRect
+    /// False when there is no close button or it is disabled (a dialog is blocking the window).
     public var hasCloseButton: Bool
 
     public init(pid: Int32, title: String, frame: CGRect, hasCloseButton: Bool) {
@@ -36,10 +37,13 @@ public enum WindowMatcher {
     ) -> Int? {
         let closable = candidates.indices.filter { candidates[$0].hasCloseButton }
 
-        let titled = closable.filter { titleMatches(shown: thumbnail.title, real: candidates[$0].title) }
+        // Title matches are looked up among all windows, closable or not: if this
+        // thumbnail's own window cannot be closed, we must not fall back to another one.
+        let titled = candidates.indices.filter { titleMatches(shown: thumbnail.title, real: candidates[$0].title) }
         if !titled.isEmpty {
             let hits = titled.filter { aspectMatches(thumbnail.frame, candidates[$0].frame, tolerance: aspectTolerance) }
-            return hits.count == 1 ? hits[0] : nil
+            guard hits.count == 1, candidates[hits[0]].hasCloseButton else { return nil }
+            return hits[0]
         }
 
         let others = allThumbnails.filter { $0 != thumbnail }

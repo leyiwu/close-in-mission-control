@@ -98,6 +98,13 @@ private func rect(_ x: Double, _ y: Double, _ w: Double, _ h: Double) -> CGRect 
         #expect(WindowMatcher.match(thumb, in: [window("Applications", close: false)]) == nil)
     }
 
+    // Mail with its "Add Account" dialog up: the window exists but cannot be closed.
+    @Test func blockedWindowDoesNotFallBackToAnotherWindowOfTheSameShape() {
+        let blocked = window("Applications", close: false)
+        let bystander = window("Unrelated", pid: 2)
+        #expect(WindowMatcher.match(thumb, in: [blocked, bystander], allThumbnails: [thumb]) == nil)
+    }
+
     @Test func wrongShapeIsRejected() {
         #expect(WindowMatcher.match(thumb, in: [window("Applications", rect(0, 0, 500, 500))]) == nil)
     }

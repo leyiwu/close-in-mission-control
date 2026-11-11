@@ -85,8 +85,8 @@ self-signed identity in your login keychain; builds signed with it keep the gran
 
 - Windows that share both a title and a shape get no button.
 - Only windows on the current Space are reachable.
-- A window that is showing a dialog (a first-run prompt, a save sheet) does not close,
-  exactly as its own red button would not. Dismiss the dialog first.
+- A window whose own red close button is disabled gets no button. Apps disable it while
+  something blocks closing, such as a sign-in prompt or a sheet.
 - App Exposé (⌃↓) is not supported.
 - Multiple displays and Stage Manager are untested.
 - Diagnostics are written to `~/Library/Logs/CloseInMissionControl/app.log` (window titles

@@ -85,8 +85,18 @@ public enum AXLive {
         return (error, (ref as? [AXUIElement]) ?? [])
     }
 
-    public static func hasCloseButton(_ window: AXUIElement) -> Bool {
-        value(window, "AXCloseButton") != nil
+    /// True when the window has a close button and that button is enabled, i.e. the red
+    /// button in its title bar is live. The button's own state is the only test: an app
+    /// disables it while something (a sign-in prompt, a sheet) blocks closing, and
+    /// pressing a disabled button does nothing.
+    public static func canClose(_ window: AXUIElement) -> Bool {
+        guard let ref = value(window, "AXCloseButton"), CFGetTypeID(ref) == AXUIElementGetTypeID() else {
+            return false
+        }
+        // swiftlint:disable:next force_cast
+        let button = ref as! AXUIElement
+        if let enabled = value(button, "AXEnabled") as? Bool, !enabled { return false }
+        return true
     }
 
     /// Presses the window's own close button, exactly as a click on the red button would.
