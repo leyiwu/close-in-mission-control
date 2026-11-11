@@ -47,9 +47,10 @@ step 3 below.
 
 Or by hand:
 
-1. Download `Close-in-Mission-Control-<version>.zip` from the
+1. Download `Close-in-Mission-Control-<version>.dmg` from the
    [latest release](https://github.com/leyiwu/close-in-mission-control/releases/latest).
-2. Unzip it and move **Close in Mission Control** to your Applications folder.
+2. Open it and drag **Close in Mission Control** onto the Applications folder next to it.
+   Run the app from Applications, not from the disk image.
 3. Open it. macOS will refuse the first time with a dialog titled **"Close in Mission
    Control" Not Opened** ("Apple could not verify…"), because the app is not notarized by
    Apple (that needs a paid developer account). Click **Done**, not Move to Trash. Then
@@ -71,7 +72,7 @@ Requires macOS 14+ and the Swift 6 toolchain (Xcode or the Command Line Tools).
     ./scripts/build-app.sh
     open "build/Close in Mission Control.app"
 
-Tests: `./scripts/test.sh`. Release zip: `./scripts/release.sh`.
+Tests: `./scripts/test.sh`. Release files (`.dmg` and `.zip`): `./scripts/release.sh`.
 
 ## Permission
 

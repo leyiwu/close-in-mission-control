@@ -58,6 +58,7 @@
 - [x] MIT license, git repository, published on GitHub
 - [x] Universal release zip and `scripts/release.sh` (v0.1.0; v0.1.1 adds the app icon)
 - [x] README screenshot
+- [x] Disk image with an Applications shortcut (`scripts/make-dmg.sh`); the zip stays for Homebrew
 - [x] Install verified end to end on macOS 26.6: browser download with the first-launch
       bypass, and `brew install --cask`
 - [x] "Similar projects" section in the README
