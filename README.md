@@ -5,6 +5,8 @@
 A tiny macOS menu-bar utility that adds one thing to Mission Control: a close button on
 the window thumbnail you are hovering.
 
+<img src="Support/screenshot.png" width="620" alt="A window thumbnail in Mission Control with a close button on its top-left corner">
+
 Coming from Windows, where Task View has an × on every window, Mission Control has no way
 to close a window without leaving it. This adds that × and nothing else.
 

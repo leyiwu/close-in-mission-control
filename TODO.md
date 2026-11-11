@@ -7,7 +7,7 @@
       an Intel Mac.
 - [ ] **Try a real Homebrew install** (`brew install --cask`); the cask passes Homebrew's
       style check and its download verifies, but it has not been installed end to end.
-- [ ] **Screenshot or short recording** of the × in Mission Control at the top of the README.
+- [ ] **Short recording** of the × in action for the README (a still screenshot is in).
 - [ ] **Next release (v0.1.1)** so the download includes the app icon; v0.1.0 has none.
 
 ## Community
