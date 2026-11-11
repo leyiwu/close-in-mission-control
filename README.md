@@ -93,6 +93,9 @@ self-signed identity in your login keychain; builds signed with it keep the gran
 - Only windows on the current Space are reachable.
 - A window whose own red close button is disabled gets no button. Apps disable it while
   something blocks closing, such as a sign-in prompt or a sheet.
+- Mission Control does not refresh while it is open, so a closed window leaves an empty
+  slot until you leave. QuickTime Player goes further: it accepts the close but keeps
+  playing until you leave Mission Control.
 - App Exposé (⌃↓) is not supported.
 - Multiple displays and Stage Manager are untested.
 - Diagnostics are written to `~/Library/Logs/CloseInMissionControl/app.log` (window titles

@@ -44,9 +44,9 @@
       Dock still lists the dead thumbnail). A workaround was prototyped and shelved:
       leave and re-enter Mission Control about 0.6 s after the last close. It was never
       tested on screen, and it trades away "leave Mission Control untouched".
-      Related: a QuickTime Player window kept playing in its thumbnail after its × was
-      clicked, and only went away on leaving Mission Control. Same root cause: Mission
-      Control does not refresh while it is open, so what it shows can lag behind reality.
+      Related, but specific to QuickTime Player: it accepts the close yet keeps playing,
+      audio included, until Mission Control is left. Chrome playing a YouTube video
+      closes at once, so this is QuickTime deferring its own close, not a general lag.
 
 ## Done
 
