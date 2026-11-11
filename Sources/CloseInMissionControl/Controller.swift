@@ -152,6 +152,20 @@ final class Controller {
         if !text.isEmpty { Log.write(text) }
     }
 
+    /// If the app answered the close with a prompt (unsaved changes, running process),
+    /// the prompt would otherwise float over Mission Control with its window nowhere in
+    /// sight. Switch to that window instead, the same way a click on its thumbnail would.
+    private func showBlockingDialog(for window: LiveWindow, slot: Thumbnail) {
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(350)) // give the app time to put the prompt up
+            guard self.active, AXLive.isBlockedFromClosing(window.element) else { return }
+            self.closedSlots.removeAll { $0 == slot } // it did not close after all
+            guard let dock = self.dock else { return }
+            let pressed = AXLive.pressThumbnail(dock: dock, title: slot.title, frame: slot.frame)
+            Log.write("close was stopped by a dialog; switching to \"\(slot.title)\": \(pressed ? "ok" : "thumbnail not found")")
+        }
+    }
+
     private func refreshWindows() {
         lastRefresh = Date()
         let running = directory.refresh()
@@ -168,7 +182,10 @@ final class Controller {
         hideButton(note: "after click")
         settle.reset()
         windows.removeAll { CFEqual($0.element, target.element) }
-        if error == .success, let slot { closedSlots.append(slot) }
+        if error == .success, let slot {
+            closedSlots.append(slot)
+            showBlockingDialog(for: target, slot: slot)
+        }
         needsRefreshAfterSettle = true
     }
 }

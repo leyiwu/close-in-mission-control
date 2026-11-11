@@ -23,7 +23,6 @@
 
 ## Untested
 
-- [ ] A window with unsaved changes (should show its save prompt).
 - [ ] An external monitor.
 - [ ] Stage Manager.
 - [ ] The Launch at Login toggle.
@@ -57,6 +56,7 @@
 - [x] MIT license, git repository, published on GitHub
 - [x] Universal release zip and `scripts/release.sh` (v0.1.0; v0.1.1 adds the app icon)
 - [x] README screenshot
+- [x] Unsaved-changes windows: the save prompt appears and the app switches to that window (tested with TextEdit)
 - [x] Identical windows in one app each get a ×, paired by front-to-back order (tested with Finder)
 - [x] Disk image with an Applications shortcut (`scripts/make-dmg.sh`); the zip stays for Homebrew
 - [x] Install verified end to end on macOS 26.6: browser download with the first-launch

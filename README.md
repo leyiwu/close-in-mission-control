@@ -29,7 +29,8 @@ Swift + AppKit, public APIs only. Verified on macOS 26.6 with a single display.
    to other apps' windows, so an event tap (active only while Mission Control is open)
    catches a left click that begins on the ×.
 4. The click presses the window's own close button through Accessibility, so unsaved
-   documents still show their normal save prompt.
+   documents still show their normal save prompt. When that happens, the app switches to
+   the window (as a click on its thumbnail would) so the prompt appears on it.
 
 All of this rests on undocumented macOS behaviour, listed in [DEPENDENCIES.md](DEPENDENCIES.md).
 Expect macOS updates to break it from time to time.

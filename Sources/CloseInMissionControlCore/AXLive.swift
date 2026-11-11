@@ -99,6 +99,29 @@ public enum AXLive {
         return true
     }
 
+    /// True when the window is still there and something is stopping it from closing:
+    /// a sheet is attached (a save prompt) or its close button has become disabled.
+    public static func isBlockedFromClosing(_ window: AXUIElement) -> Bool {
+        guard string(window, "AXRole") != nil else { return false } // gone: it closed
+        if children(window).contains(where: { string($0, "AXRole") == "AXSheet" }) { return true }
+        return value(window, "AXCloseButton") != nil && !canClose(window)
+    }
+
+    /// Clicks a Mission Control thumbnail, which leaves Mission Control and brings that
+    /// window to the front, exactly as clicking it with the mouse would.
+    public static func pressThumbnail(dock: AXUIElement, title: String, frame: CGRect) -> Bool {
+        guard let mc = children(dock).first(where: { string($0, "AXIdentifier") == "mc" }) else { return false }
+        for display in children(mc) {
+            for group in children(display) where string(group, "AXIdentifier") == "mc.windows" {
+                for thumbnail in children(group)
+                where (string(thumbnail, "AXTitle") ?? "") == title && self.frame(thumbnail) == frame {
+                    return AXUIElementPerformAction(thumbnail, "AXPress" as CFString) == .success
+                }
+            }
+        }
+        return false
+    }
+
     /// Presses the window's own close button, exactly as a click on the red button would.
     public static func pressCloseButton(_ window: AXUIElement) -> AXError {
         var ref: CFTypeRef?
