@@ -23,6 +23,12 @@
       what it does, the screenshot, install and uninstall in plain words. Move "How it
       works", the undocumented-behaviour notes, build-from-source and the layout further
       down or into a separate file for developers.
+- [ ] **Welcome window on first launch**, replacing the current plain alert. Model: the
+      permissions page in Handy's setup. One small window that says what the app does,
+      shows the single permission it needs (Accessibility) with a one-line reason, a
+      button that opens the right System Settings page, and a status that flips to
+      "Allowed" by itself once granted. Shown only until the permission is granted, and
+      again if it is later revoked. Keep it to one screen: this app has one permission.
 - [ ] **Understand how the logging works** (to study, not to change): how the app writes
       `~/Library/Logs/CloseInMissionControl/app.log`, what each kind of line records
       (Mission Control opening and closing, hovers, matches, clicks, close results), how
