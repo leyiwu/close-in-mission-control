@@ -23,7 +23,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let languageItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
     private let versionItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
     private let notesItem = NSMenuItem(title: "", action: #selector(openReleaseNotes), keyEquivalent: "")
-    private let quitItem = NSMenuItem(title: "", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+    /// Not wired straight to `terminate:`: macOS puts an icon on menu items with standard
+    /// actions, and Quit would be the only row with one.
+    private let quitItem = NSMenuItem(title: "", action: #selector(quit), keyEquivalent: "q")
     /// "Follow System" first, then one item per language.
     private var languageChoices: [NSMenuItem] = []
     private let dumpItem = NSMenuItem(title: "Dump Mission Control AX Tree in 5 s", action: #selector(dumpSoon), keyEquivalent: "")
@@ -106,7 +108,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(notesItem)
         menu.addItem(.separator())
         menu.addItem(quitItem)
-        for item in menu.items + debug.items + languageChoices where item.action != #selector(NSApplication.terminate(_:)) {
+        for item in menu.items + debug.items + languageChoices {
             item.target = self
         }
         return menu
@@ -168,6 +170,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func showWelcome() { welcome.show() }
+
+    @objc private func quit() { NSApp.terminate(nil) }
 
     @objc private func openReleaseNotes() { NSWorkspace.shared.open(version.releaseNotesURL) }
 
