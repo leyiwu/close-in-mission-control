@@ -109,10 +109,20 @@ final class WelcomeWindow: NSObject {
         status.setContentHuggingPriority(.required, for: .horizontal)
         status.setContentCompressionResistancePriority(.required, for: .horizontal)
 
-        // The status sits against the card's right edge, mirroring the icon on the left, so
-        // "Allowed" and "Not allowed yet" end in the same place.
+        // The status is centred in a column of its own, wide enough for the longest wording,
+        // so "Allowed" and "Not allowed yet" share a centre line instead of one trailing off.
+        let statusColumn = NSView()
+        statusColumn.translatesAutoresizingMaskIntoConstraints = false
+        status.translatesAutoresizingMaskIntoConstraints = false
+        statusColumn.addSubview(status)
+        NSLayoutConstraint.activate([
+            statusColumn.widthAnchor.constraint(equalToConstant: 116),
+            statusColumn.heightAnchor.constraint(equalTo: status.heightAnchor),
+            status.centerXAnchor.constraint(equalTo: statusColumn.centerXAnchor),
+            status.centerYAnchor.constraint(equalTo: statusColumn.centerYAnchor),
+        ])
         let row = NSStackView(views: [permissionIcon, text])
-        row.addView(status, in: .trailing)
+        row.addView(statusColumn, in: .trailing)
         row.orientation = .horizontal
         row.alignment = .centerY
         row.spacing = 12
@@ -125,10 +135,10 @@ final class WelcomeWindow: NSObject {
             row.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -14),
             row.topAnchor.constraint(equalTo: card.topAnchor, constant: 14),
             row.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -14),
-            // The card is 424 wide: 14 + icon 24 + 12 + text + 12 + status ~110 + 14.
-            text.widthAnchor.constraint(equalToConstant: 232),
+            // The card is 424 wide: 14 + icon 24 + 12 + text + 12 + status column 116 + 14.
+            text.widthAnchor.constraint(equalToConstant: 228),
         ])
-        detail.preferredMaxLayoutWidth = 232
+        detail.preferredMaxLayoutWidth = 228
 
         let steps = stepsLabel
         steps.font = .systemFont(ofSize: 12)
