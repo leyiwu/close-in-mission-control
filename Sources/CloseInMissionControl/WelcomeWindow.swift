@@ -42,12 +42,17 @@ final class WelcomeWindow: NSObject {
     /// Call when the permission changes. A visible window is brought forward so the user,
     /// who is probably in System Settings, sees "Allowed" appear.
     func permissionChanged(granted: Bool) {
+        Log.write("accessibility \(granted ? "granted" : "revoked"); welcome window visible: \(window.isVisible)")
         update(granted: granted)
-        if granted, window.isVisible {
-            NSApp.activate(ignoringOtherApps: true)
-            window.orderFrontRegardless()
-        } else if !granted {
-            show()
+        guard granted else { return show() }
+        guard window.isVisible else { return }
+        // Since macOS 14 an app cannot pull itself in front of System Settings, which is
+        // where the user is. Float above it for a few seconds so "Allowed" is seen.
+        window.level = .floating
+        NSApp.activate()
+        window.orderFrontRegardless()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+            MainActor.assumeIsolated { self.window.level = .normal }
         }
     }
 
