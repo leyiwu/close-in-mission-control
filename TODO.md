@@ -85,6 +85,8 @@
 - [x] Universal release zip and `scripts/release.sh` (v0.1.0; v0.1.1 adds the app icon)
 - [x] README screenshot
 - [x] Quit menu item shortened to "Quit"
+- [x] Opening the app by hand or reopening it shows the welcome window (verified on the
+      released 0.1.5 from Applications); starting at login is meant to stay quiet, not yet seen
 - [x] Welcome window with a live Accessibility status, replacing the plain alert; the live
       grant flow is verified (the window floats above System Settings and shows "Allowed")
 - [x] README rewritten for everyday users, with an Uninstall section; developer material
