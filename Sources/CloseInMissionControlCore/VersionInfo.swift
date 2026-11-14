@@ -27,11 +27,11 @@ public struct VersionInfo: Equatable, Sendable {
         commit = info["GitCommit"] as? String
     }
 
-    /// The line shown in the menu.
+    /// The line shown in the menu, kept short so it does not widen the menu. A release is
+    /// just its version; a build from source adds the commit it came from (or "dev").
     public var menuTitle: String {
         guard isDevelopmentBuild else { return "Version \(version)" }
-        let detail = ["development build", commit].compactMap { $0 }.joined(separator: " ")
-        return "Version \(version) (\(detail))"
+        return "Version \(version) · \(commit ?? "dev")"
     }
 
     /// One line for the log, with the build number too.

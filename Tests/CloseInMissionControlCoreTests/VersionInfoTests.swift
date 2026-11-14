@@ -16,14 +16,14 @@ import Testing
         #expect(!info.isDevelopmentBuild)
     }
 
-    @Test func developmentBuildSaysSoAndShowsTheCommit() {
-        #expect(VersionInfo(infoDictionary: development).menuTitle == "Version 0.1.5 (development build 2969ed0+)")
+    @Test func developmentBuildShowsTheCommit() {
+        #expect(VersionInfo(infoDictionary: development).menuTitle == "Version 0.1.5 · 2969ed0+")
     }
 
     @Test func developmentBuildWithoutACommit() {
         var info = development
         info["GitCommit"] = nil
-        #expect(VersionInfo(infoDictionary: info).menuTitle == "Version 0.1.5 (development build)")
+        #expect(VersionInfo(infoDictionary: info).menuTitle == "Version 0.1.5 · dev")
     }
 
     @Test func anUnstampedBuildCountsAsDevelopment() {
@@ -33,7 +33,7 @@ import Testing
     }
 
     @Test func missingInfoStillProducesATitle() {
-        #expect(VersionInfo(infoDictionary: nil).menuTitle == "Version unknown (development build)")
+        #expect(VersionInfo(infoDictionary: nil).menuTitle == "Version unknown · dev")
     }
 
     @Test func releaseNotesPointAtTheTagOrTheList() {

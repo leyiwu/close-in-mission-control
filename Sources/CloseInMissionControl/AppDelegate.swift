@@ -73,7 +73,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(debugItem)
 
         menu.addItem(.separator())
+        // A small grey footer line rather than a full-size row.
         let versionItem = NSMenuItem(title: version.menuTitle, action: nil, keyEquivalent: "")
+        versionItem.attributedTitle = NSAttributedString(string: version.menuTitle, attributes: [
+            .font: NSFont.menuFont(ofSize: 11),
+            .foregroundColor: NSColor.secondaryLabelColor,
+        ])
         versionItem.isEnabled = false
         menu.addItem(versionItem)
         menu.addItem(NSMenuItem(title: "Release Notes…", action: #selector(openReleaseNotes), keyEquivalent: ""))
