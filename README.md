@@ -15,7 +15,8 @@ leave it just to close a window. This adds that ×, and nothing else.
 - Close only. No minimize, no shortcuts, no settings to learn.
 - Free and open source. No network access, no tracking, no auto-update.
 - Mission Control itself is untouched; every other click works as it always has.
-- Available in English and Simplified Chinese; it follows your Mac's language.
+- Available in English and Simplified Chinese; it follows your Mac's language. To use the other
+  one, set it for this app only in System Settings → General → Language & Region → Applications.
 
 Works on Apple silicon and Intel Macs with macOS 14 or later. Tested on macOS 26.
 
