@@ -53,9 +53,6 @@
       term in brackets as a hedge.
 - [ ] **Traditional Chinese (zh-Hant).** A Mac set to it falls back to English today.
 
-- [ ] **Add the preferences file to the cask's `zap trash`** in `leyiwu/homebrew-tap` when the
-      Language menu is released, so `brew uninstall --zap` removes it too.
-
 ## Optional features
 
 - [ ] App Exposé (⌃↓) support; its Accessibility group is named `appexpose`.
@@ -95,6 +92,7 @@
 - [x] Quit menu item shortened to "Quit"
 - [x] Simplified Chinese: the menu and welcome window follow the Mac's language, and
       `README.zh-CN.md` mirrors the README
+- [x] Released as v0.1.7, with the cask's `zap trash` covering the preferences file
 - [x] Menu → Language (Follow System / English / 简体中文) switches the menu and welcome
       window live and remembers the choice; the only thing the app stores
 - [x] The × fades in from 30% to full over 0.12 s (skipped when Reduce Motion is on)
