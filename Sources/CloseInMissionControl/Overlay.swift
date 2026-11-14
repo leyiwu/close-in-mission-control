@@ -6,6 +6,10 @@ import AppKit
 @MainActor
 final class Overlay {
     static let size: CGFloat = 21
+    /// The × is already visible the instant the pointer arrives, then settles to full
+    /// strength: a response that feels immediate, with a motion that can still be seen.
+    private static let fadeStartAlpha: CGFloat = 0.3
+    private static let fadeDuration: TimeInterval = 0.25
     private let panel: NSPanel
     private let button: CloseButtonView
     private(set) var isVisible = false
@@ -48,18 +52,18 @@ final class Overlay {
             panel.setFrameOrigin(origin)
         }
         if !isVisible {
-            panel.alphaValue = 0
+            panel.alphaValue = Self.fadeStartAlpha
             panel.orderFrontRegardless()
             isVisible = true
             fadeIn()
         } else if moved {
             // Jumped straight to another thumbnail: fade in there too.
-            panel.alphaValue = 0
+            panel.alphaValue = Self.fadeStartAlpha
             fadeIn()
         }
     }
 
-    /// A short fade, so the × settles in instead of popping. Skipped when the user has
+    /// A short fade from a visible start, so the × settles in instead of popping. Skipped when the user has
     /// asked macOS to reduce motion.
     private func fadeIn() {
         guard !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else {
@@ -67,7 +71,7 @@ final class Overlay {
             return
         }
         NSAnimationContext.runAnimationGroup { context in
-            context.duration = 0.12
+            context.duration = Self.fadeDuration
             context.timingFunction = CAMediaTimingFunction(name: .easeOut)
             panel.animator().alphaValue = 1
         }
