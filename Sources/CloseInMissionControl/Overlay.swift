@@ -9,6 +9,9 @@ final class Overlay {
     private let panel: NSPanel
     private let button: CloseButtonView
     private(set) var isVisible = false
+    /// The origin last asked for. Compared instead of the panel's own frame, which AppKit
+    /// may round, so that "did it move?" stays reliable at 20 calls a second.
+    private var requestedOrigin: NSPoint?
 
     init() {
         button = CloseButtonView(frame: NSRect(x: 0, y: 0, width: Self.size, height: Self.size))
@@ -39,17 +42,48 @@ final class Overlay {
     func show(atAXTopLeft topLeft: CGPoint) {
         let primaryHeight = NSScreen.screens.first?.frame.height ?? 0
         let origin = NSPoint(x: topLeft.x, y: primaryHeight - topLeft.y - Self.size)
-        if panel.frame.origin != origin { panel.setFrameOrigin(origin) }
+        let moved = origin != requestedOrigin
+        if moved {
+            requestedOrigin = origin
+            panel.setFrameOrigin(origin)
+        }
         if !isVisible {
+            panel.alphaValue = 0
             panel.orderFrontRegardless()
             isVisible = true
+            fadeIn()
+        } else if moved {
+            // Jumped straight to another thumbnail: fade in there too.
+            panel.alphaValue = 0
+            fadeIn()
+        }
+    }
+
+    /// A short fade, so the × settles in instead of popping. Skipped when the user has
+    /// asked macOS to reduce motion.
+    private func fadeIn() {
+        guard !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else {
+            panel.alphaValue = 1
+            return
+        }
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.12
+            context.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            panel.animator().alphaValue = 1
         }
     }
 
     func hide() {
         guard isVisible else { return }
+        // Hiding is instant: after a click the × must vanish at once. A zero-length
+        // animation also cancels a fade that is still running.
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0
+            panel.animator().alphaValue = 0
+        }
         panel.orderOut(nil)
         isVisible = false
+        requestedOrigin = nil
     }
 }
 
