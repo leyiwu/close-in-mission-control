@@ -2,13 +2,6 @@
 
 ## Next
 
-- [ ] **Check the welcome window on a real first run.** Revoke the grant
-      (`tccutil reset Accessibility org.closeinmissioncontrol.app`), relaunch, press the
-      button, allow it in System Settings, and confirm the status flips to "Allowed" and the
-      window comes forward. The layout was checked in both states. First live run: the app
-      worked after the grant, but the status was not seen to flip; the window may have
-      stayed behind System Settings. It now floats above for 4 s on a grant, and logs
-      "accessibility granted" with whether the window was visible. Retest.
 - [ ] **Check the two-line Homebrew install on a clean setup** (tap removed and untrusted).
       Checked so far: `brew trust --tap` accepts a tap that is not tapped yet. Not checked:
       that `brew install --cask leyiwu/tap/...` then taps it by itself.
@@ -92,7 +85,8 @@
 - [x] Universal release zip and `scripts/release.sh` (v0.1.0; v0.1.1 adds the app icon)
 - [x] README screenshot
 - [x] Quit menu item shortened to "Quit"
-- [x] Welcome window with a live Accessibility status, replacing the plain alert
+- [x] Welcome window with a live Accessibility status, replacing the plain alert; the live
+      grant flow is verified (the window floats above System Settings and shows "Allowed")
 - [x] README rewritten for everyday users, with an Uninstall section; developer material
       moved to `DEVELOPING.md`
 - [x] Homebrew install shortened to two lines
