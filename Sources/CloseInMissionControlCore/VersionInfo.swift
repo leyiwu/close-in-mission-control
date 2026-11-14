@@ -29,9 +29,10 @@ public struct VersionInfo: Equatable, Sendable {
 
     /// The line shown in the menu, kept short so it does not widen the menu. A release is
     /// just its version; a build from source adds the commit it came from (or "dev").
-    public var menuTitle: String {
-        guard isDevelopmentBuild else { return "Version \(version)" }
-        return "Version \(version) · \(commit ?? "dev")"
+    /// `versionWord` is the localized word for "Version"; the rest is language-neutral.
+    public func menuTitle(versionWord: String = "Version") -> String {
+        guard isDevelopmentBuild else { return "\(versionWord) \(version)" }
+        return "\(versionWord) \(version) · \(commit ?? "dev")"
     }
 
     /// One line for the log, with the build number too.

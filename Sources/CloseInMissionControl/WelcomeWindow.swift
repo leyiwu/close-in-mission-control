@@ -78,7 +78,7 @@ final class WelcomeWindow: NSObject {
             icon.heightAnchor.constraint(equalToConstant: 72),
         ])
 
-        let title = NSTextField(labelWithString: "Welcome to Close in Mission Control")
+        let title = NSTextField(labelWithString: tr("welcome.title", "Welcome to Close in Mission Control"))
         title.font = .systemFont(ofSize: 20, weight: .semibold)
         subtitleLabel.textColor = .secondaryLabelColor
 
@@ -86,11 +86,11 @@ final class WelcomeWindow: NSObject {
         permissionIcon.contentTintColor = .secondaryLabelColor
         permissionIcon.setContentHuggingPriority(.required, for: .horizontal)
 
-        let name = NSTextField(labelWithString: "Accessibility")
+        let name = NSTextField(labelWithString: tr("welcome.permission.name", "Accessibility"))
         name.font = .systemFont(ofSize: 13, weight: .semibold)
-        let detail = NSTextField(wrappingLabelWithString:
+        let detail = NSTextField(wrappingLabelWithString: tr("welcome.permission.detail",
             "So the app can find the window thumbnails in Mission Control and press a window's own "
-            + "close button. Nothing is recorded, and nothing leaves your Mac.")
+            + "close button. Nothing is recorded, and nothing leaves your Mac."))
         detail.font = .systemFont(ofSize: 12)
         detail.textColor = .secondaryLabelColor
         let text = NSStackView(views: [name, detail])
@@ -127,11 +127,11 @@ final class WelcomeWindow: NSObject {
         steps.font = .systemFont(ofSize: 12)
         steps.textColor = .secondaryLabelColor
 
-        settingsButton.title = "Open Accessibility Settings"
+        settingsButton.title = tr("welcome.button.settings", "Open Accessibility Settings")
         settingsButton.bezelStyle = .rounded
         settingsButton.target = self
         settingsButton.action = #selector(openSettings)
-        doneButton.title = "Done"
+        doneButton.title = tr("welcome.button.done", "Done")
         doneButton.bezelStyle = .rounded
         doneButton.target = self
         doneButton.action = #selector(done)
@@ -170,7 +170,9 @@ final class WelcomeWindow: NSObject {
     }
 
     private func update(granted: Bool) {
-        statusLabel.stringValue = granted ? "Allowed" : "Not allowed yet"
+        statusLabel.stringValue = granted
+            ? tr("welcome.status.allowed", "Allowed")
+            : tr("welcome.status.notYet", "Not allowed yet")
         statusLabel.textColor = granted ? .systemGreen : .secondaryLabelColor
         statusIcon.image = symbol(granted ? "checkmark.circle.fill" : "circle", size: 15)
         statusIcon.contentTintColor = granted ? .systemGreen : .tertiaryLabelColor
@@ -178,12 +180,16 @@ final class WelcomeWindow: NSObject {
         settingsButton.keyEquivalent = granted ? "" : "\r"
         doneButton.isEnabled = granted
         doneButton.keyEquivalent = granted ? "\r" : ""
-        subtitleLabel.stringValue = granted ? "You're all set. It runs from the menu bar." : "One permission, then you're set."
+        subtitleLabel.stringValue = granted
+            ? tr("welcome.subtitle.granted", "You're all set. It runs from the menu bar.")
+            : tr("welcome.subtitle.pending", "One permission, then you're set.")
         stepsLabel.stringValue = granted
-            ? "Open Mission Control and hover over a window: a small × appears on its top-left corner. "
-                + "Click the × icon in the menu bar to turn on Launch at Login or to quit."
-            : "Then open Mission Control and hover over a window. A small × appears on its top-left corner. "
-                + "Quit any time from the × icon in the menu bar."
+            ? tr("welcome.steps.granted",
+                "Open Mission Control and hover over a window: a small × appears on its top-left corner. "
+                + "Click the × icon in the menu bar to turn on Launch at Login or to quit.")
+            : tr("welcome.steps.pending",
+                "Then open Mission Control and hover over a window. A small × appears on its top-left corner. "
+                + "Quit any time from the × icon in the menu bar.")
         fitWindowToContent()
     }
 

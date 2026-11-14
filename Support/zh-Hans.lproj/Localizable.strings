@@ -1,0 +1,23 @@
+/* Close in Mission Control: 简体中文 */
+
+/* Menu */
+"menu.accessibility.granted" = "辅助功能：已授权";
+"menu.accessibility.notGranted" = "辅助功能：未授权";
+"menu.setUp" = "设置辅助功能…";
+"menu.launchAtLogin" = "登录时启动";
+"menu.version" = "版本";
+"menu.releaseNotes" = "更新说明…";
+"menu.quit" = "退出";
+
+/* Welcome window */
+"welcome.title" = "欢迎使用 Close in Mission Control";
+"welcome.subtitle.pending" = "只需一项权限，就能开始使用。";
+"welcome.subtitle.granted" = "一切就绪。它在菜单栏中运行。";
+"welcome.permission.name" = "辅助功能";
+"welcome.permission.detail" = "让应用能找到 Mission Control 里的窗口缩略图，并点按窗口自带的关闭按钮。不会记录任何内容，任何数据也不会离开你的 Mac。";
+"welcome.status.allowed" = "已允许";
+"welcome.status.notYet" = "尚未允许";
+"welcome.steps.pending" = "然后打开 Mission Control，把鼠标移到窗口上，窗口左上角会出现一个小小的 ×。随时可以从菜单栏的 × 图标退出。";
+"welcome.steps.granted" = "打开 Mission Control，把鼠标移到窗口上，窗口左上角会出现一个小小的 ×。点按菜单栏里的 × 图标，可以开启“登录时启动”或退出。";
+"welcome.button.settings" = "打开辅助功能设置";
+"welcome.button.done" = "完成";

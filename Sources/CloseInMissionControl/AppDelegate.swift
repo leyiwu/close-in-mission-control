@@ -10,8 +10,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private lazy var controller = Controller(isPermitted: { [permission] in permission.isGranted })
     private var statusItem: NSStatusItem!
     private let permissionItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
-    private let grantItem = NSMenuItem(title: "Set Up Accessibility…", action: #selector(showWelcome), keyEquivalent: "")
-    private let loginItem = NSMenuItem(title: "Launch at Login", action: #selector(toggleLaunchAtLogin), keyEquivalent: "")
+    private let grantItem = NSMenuItem(title: tr("menu.setUp", "Set Up Accessibility…"), action: #selector(showWelcome), keyEquivalent: "")
+    private let loginItem = NSMenuItem(title: tr("menu.launchAtLogin", "Launch at Login"), action: #selector(toggleLaunchAtLogin), keyEquivalent: "")
     private let dumpItem = NSMenuItem(title: "Dump Mission Control AX Tree in 5 s", action: #selector(dumpSoon), keyEquivalent: "")
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -74,16 +74,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         menu.addItem(.separator())
         // A small grey footer line rather than a full-size row.
-        let versionItem = NSMenuItem(title: version.menuTitle, action: nil, keyEquivalent: "")
-        versionItem.attributedTitle = NSAttributedString(string: version.menuTitle, attributes: [
+        let versionTitle = version.menuTitle(versionWord: tr("menu.version", "Version"))
+        let versionItem = NSMenuItem(title: versionTitle, action: nil, keyEquivalent: "")
+        versionItem.attributedTitle = NSAttributedString(string: versionTitle, attributes: [
             .font: NSFont.menuFont(ofSize: 11),
             .foregroundColor: NSColor.secondaryLabelColor,
         ])
         versionItem.isEnabled = false
         menu.addItem(versionItem)
-        menu.addItem(NSMenuItem(title: "Release Notes…", action: #selector(openReleaseNotes), keyEquivalent: ""))
+        menu.addItem(NSMenuItem(title: tr("menu.releaseNotes", "Release Notes…"), action: #selector(openReleaseNotes), keyEquivalent: ""))
         menu.addItem(.separator())
-        menu.addItem(NSMenuItem(title: "Quit", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: tr("menu.quit", "Quit"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
         for item in menu.items + debug.items where item.action != #selector(NSApplication.terminate(_:)) {
             item.target = self
         }
@@ -92,7 +93,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func refreshMenu() {
         let granted = permission.isGranted
-        permissionItem.title = granted ? "Accessibility: Granted" : "Accessibility: Not Granted"
+        permissionItem.title = granted
+            ? tr("menu.accessibility.granted", "Accessibility: Granted")
+            : tr("menu.accessibility.notGranted", "Accessibility: Not Granted")
         grantItem.isHidden = granted
         dumpItem.isEnabled = granted
         loginItem.state = SMAppService.mainApp.status == .enabled ? .on : .off

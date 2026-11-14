@@ -29,6 +29,8 @@ COMMIT="$(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
     "$APP/Contents/Info.plist"
 mkdir -p "$APP/Contents/Resources"
 cp Support/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
+# Translations: one <language>.lproj folder per language.
+for lproj in Support/*.lproj; do cp -R "$lproj" "$APP/Contents/Resources/"; done
 # Prefer the stable local identity (see scripts/make-signing-identity.sh); else ad-hoc.
 IDENTITY="CloseInMissionControl Local Signing"
 if security find-identity -p codesigning | grep -q "$IDENTITY"; then

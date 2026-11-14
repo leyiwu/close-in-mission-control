@@ -42,6 +42,17 @@ Tests: `./scripts/test.sh` (works with Command Line Tools only; plain `swift tes
 full Xcode). Launch with `--welcome` to force the welcome window. It also shows whenever the app is
 opened by hand or reopened while running, but not when macOS starts it at login.
 
+## Translations
+
+User-facing text goes through `tr(key, english)` in `Strings.swift`: the English is the
+default, written next to the code, and each other language is a
+`Support/<language>.lproj/Localizable.strings` file with the same keys. `build-app.sh`
+copies every `.lproj` folder into the app, and `CFBundleLocalizations` in `Info.plist`
+lists the languages. Currently English and Simplified Chinese (`zh-Hans`); a Mac set to
+anything else falls back to English. To check a language, launch the app with
+`-AppleLanguages "(zh-Hans)"`. The Debug menu and the log are for developers and stay in
+English. The Chinese README is `README.zh-CN.md`; keep it in step with `README.md`.
+
 ## Which build is running
 
 The menu shows the version. A build made by `./scripts/build-app.sh` is labelled a

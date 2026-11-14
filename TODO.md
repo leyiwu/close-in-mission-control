@@ -48,6 +48,11 @@
 - [ ] Launch at Login after a real restart (the toggle registers and macOS confirms
       "Login Item Added"; an actual login has not been tried).
 
+- [ ] **Check the Chinese README's macOS wording on a Chinese-language system** (the
+      first-launch dialog, "仍要打开", "隐私与安全性"). Written from memory, with the English
+      term in brackets as a hedge.
+- [ ] **Traditional Chinese (zh-Hant).** A Mac set to it falls back to English today.
+
 ## Optional features
 
 - [ ] App Exposé (⌃↓) support; its Accessibility group is named `appexpose`.
@@ -85,6 +90,8 @@
 - [x] Universal release zip and `scripts/release.sh` (v0.1.0; v0.1.1 adds the app icon)
 - [x] README screenshot
 - [x] Quit menu item shortened to "Quit"
+- [x] Simplified Chinese: the menu and welcome window follow the Mac's language, and
+      `README.zh-CN.md` mirrors the README
 - [x] The × fades in from 30% to full over 0.12 s (skipped when Reduce Motion is on)
 - [x] Menu shows the version (development builds say so and show their commit) and links to
       the release notes; the log records it at every start

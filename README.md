@@ -1,5 +1,7 @@
 <img src="Support/icon.png" width="96" alt="App icon">
 
+**English** | [简体中文](README.zh-CN.md)
+
 # Close in Mission Control
 
 A tiny Mac app that adds one thing to Mission Control: a **close button on the window you
@@ -13,6 +15,7 @@ leave it just to close a window. This adds that ×, and nothing else.
 - Close only. No minimize, no shortcuts, no settings to learn.
 - Free and open source. No network access, no tracking, no auto-update.
 - Mission Control itself is untouched; every other click works as it always has.
+- Available in English and Simplified Chinese; it follows your Mac's language.
 
 Works on Apple silicon and Intel Macs with macOS 14 or later. Tested on macOS 26.
 
