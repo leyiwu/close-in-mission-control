@@ -85,7 +85,7 @@
 - [x] Universal release zip and `scripts/release.sh` (v0.1.0; v0.1.1 adds the app icon)
 - [x] README screenshot
 - [x] Quit menu item shortened to "Quit"
-- [x] The × fades in from 30% to full over 0.25 s (skipped when Reduce Motion is on)
+- [x] The × fades in from 30% to full over 0.2 s (skipped when Reduce Motion is on)
 - [x] Menu shows the version (development builds say so and show their commit) and links to
       the release notes; the log records it at every start
 - [x] Opening the app by hand or reopening it shows the welcome window (verified on the
