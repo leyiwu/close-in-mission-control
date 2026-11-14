@@ -9,7 +9,7 @@ final class Overlay {
     /// The × is already visible the instant the pointer arrives, then settles to full
     /// strength: a response that feels immediate, with a motion that can still be seen.
     private static let fadeStartAlpha: CGFloat = 0.3
-    private static let fadeDuration: TimeInterval = 0.2
+    private static let fadeDuration: TimeInterval = 0.12
     private let panel: NSPanel
     private let button: CloseButtonView
     private(set) var isVisible = false
