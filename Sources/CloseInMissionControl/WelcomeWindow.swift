@@ -7,6 +7,8 @@ import AppKit
 final class WelcomeWindow: NSObject {
     private let permission: Permission
     private let window: NSWindow
+    private let subtitleLabel = NSTextField(labelWithString: "")
+    private let stepsLabel = NSTextField(wrappingLabelWithString: "")
     private let statusIcon = NSImageView()
     private let statusLabel = NSTextField(labelWithString: "")
     private let settingsButton = NSButton()
@@ -73,8 +75,7 @@ final class WelcomeWindow: NSObject {
 
         let title = NSTextField(labelWithString: "Welcome to Close in Mission Control")
         title.font = .systemFont(ofSize: 20, weight: .semibold)
-        let subtitle = NSTextField(labelWithString: "One permission, then you're set.")
-        subtitle.textColor = .secondaryLabelColor
+        subtitleLabel.textColor = .secondaryLabelColor
 
         let permissionIcon = NSImageView(image: symbol("accessibility", size: 24) ?? NSImage())
         permissionIcon.contentTintColor = .secondaryLabelColor
@@ -117,9 +118,7 @@ final class WelcomeWindow: NSObject {
         ])
         detail.preferredMaxLayoutWidth = 232
 
-        let steps = NSTextField(wrappingLabelWithString:
-            "Then open Mission Control and hover over a window. A small × appears on its top-left corner. "
-            + "Quit any time from the × icon in the menu bar.")
+        let steps = stepsLabel
         steps.font = .systemFont(ofSize: 12)
         steps.textColor = .secondaryLabelColor
 
@@ -136,7 +135,7 @@ final class WelcomeWindow: NSObject {
         let buttons = NSStackView(views: [settingsButton, spacer, doneButton])
         buttons.orientation = .horizontal
 
-        let header = NSStackView(views: [icon, title, subtitle])
+        let header = NSStackView(views: [icon, title, subtitleLabel])
         header.orientation = .vertical
         header.alignment = .centerX
         header.spacing = 6
@@ -174,6 +173,27 @@ final class WelcomeWindow: NSObject {
         settingsButton.keyEquivalent = granted ? "" : "\r"
         doneButton.isEnabled = granted
         doneButton.keyEquivalent = granted ? "\r" : ""
+        subtitleLabel.stringValue = granted ? "You're all set. It runs from the menu bar." : "One permission, then you're set."
+        stepsLabel.stringValue = granted
+            ? "Open Mission Control and hover over a window: a small × appears on its top-left corner. "
+                + "Click the × icon in the menu bar to turn on Launch at Login or to quit."
+            : "Then open Mission Control and hover over a window. A small × appears on its top-left corner. "
+                + "Quit any time from the × icon in the menu bar."
+        fitWindowToContent()
+    }
+
+    /// The wording changes with the state, so keep the window as tall as its content,
+    /// holding the top edge still.
+    private func fitWindowToContent() {
+        guard let content = window.contentView else { return }
+        content.layoutSubtreeIfNeeded()
+        let height = content.fittingSize.height
+        guard height > 0, abs(window.contentLayoutRect.height - height) > 0.5 else { return }
+        var frame = window.frame
+        let newFrame = window.frameRect(forContentRect: NSRect(x: 0, y: 0, width: 480, height: height))
+        frame.origin.y += frame.height - newFrame.height
+        frame.size.height = newFrame.height
+        window.setFrame(frame, display: true)
     }
 
     // MARK: - Actions

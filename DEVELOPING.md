@@ -39,8 +39,8 @@ Requires macOS 14+ and the Swift 6 toolchain (Xcode or the Command Line Tools).
     open "build/Close in Mission Control.app"
 
 Tests: `./scripts/test.sh` (works with Command Line Tools only; plain `swift test` needs
-full Xcode). Launch with `--welcome` to force the welcome window even when the permission
-is already granted.
+full Xcode). Launch with `--welcome` to force the welcome window. It also shows whenever the app is
+opened by hand or reopened while running, but not when macOS starts it at login.
 
 ## Signing and the Accessibility grant
 

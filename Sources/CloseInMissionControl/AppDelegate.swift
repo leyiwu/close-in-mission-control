@@ -24,8 +24,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         refreshMenu()
         controller.start()
         permission.startWatching()
-        // `--welcome` forces the window even when the permission is already granted.
-        if !permission.isGranted || CommandLine.arguments.contains("--welcome") { welcome.show() }
+        // Opening the app by hand shows the window, so a menu-bar app that otherwise stays
+        // silent does not look like it failed to start. Starting at login stays quiet.
+        // `--welcome` forces the window.
+        let atLogin = launchedAtLogin()
+        if !permission.isGranted || !atLogin || CommandLine.arguments.contains("--welcome") { welcome.show() }
+    }
+
+    /// Opening the app again while it is running (Finder, Spotlight, Launchpad).
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        welcome.show()
+        return false
+    }
+
+    /// True when macOS started the app as a login item. The launch event carries a marker
+    /// for that; as a second signal, a login item that was enabled and a Mac that booted
+    /// moments ago also counts. Both are logged so a wrong guess can be diagnosed.
+    private func launchedAtLogin() -> Bool {
+        let event = NSAppleEventManager.shared().currentAppleEvent
+        let byEvent = event?.eventID == AEEventID(kAEOpenApplication)
+            && event?.paramDescriptor(forKeyword: AEKeyword(keyAEPropData))?.enumCodeValue
+                == OSType(keyAELaunchedAsLogInItem)
+        let enabled = SMAppService.mainApp.status == .enabled
+        let uptime = ProcessInfo.processInfo.systemUptime
+        Log.write("launch: login-item event=\(byEvent), launch-at-login on=\(enabled), uptime=\(Int(uptime))s")
+        return byEvent || (enabled && uptime < 180)
     }
 
     private func buildMenu() -> NSMenu {
