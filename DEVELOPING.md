@@ -42,6 +42,15 @@ Tests: `./scripts/test.sh` (works with Command Line Tools only; plain `swift tes
 full Xcode). Launch with `--welcome` to force the welcome window. It also shows whenever the app is
 opened by hand or reopened while running, but not when macOS starts it at login.
 
+## Which build is running
+
+The menu shows the version. A build made by `./scripts/build-app.sh` is labelled a
+**development build** and carries the git commit it came from, with a `+` when there are
+uncommitted changes, for example `Version 0.1.5 (development build 2969ed0+)`. Builds made
+by `./scripts/release.sh` are marked as releases and show just `Version 0.1.5`. The same
+details, plus the build number, are written to the log at every start. The stamps are added
+to Info.plist by `build-app.sh`.
+
 ## Signing and the Accessibility grant
 
 By default builds are ad-hoc signed, so macOS treats every rebuild as a new app and the

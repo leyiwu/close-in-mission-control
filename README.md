@@ -49,7 +49,8 @@ window shows **Allowed** as soon as you switch it on.
 Open Mission Control, point at a window, and click the × on its top-left corner. A window
 with unsaved changes shows its usual save prompt, so nothing is lost.
 
-Click the × icon in the menu bar to turn on **Launch at Login** or to **Quit**.
+Click the × icon in the menu bar to turn on **Launch at Login** or to **Quit**. The menu
+also shows which version you have, with a link to its release notes.
 
 ## Uninstall
 

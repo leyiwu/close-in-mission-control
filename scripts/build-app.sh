@@ -18,6 +18,15 @@ else
     cp ".build/release/$BIN" "$APP/Contents/MacOS/$BIN"
 fi
 cp Support/Info.plist "$APP/Contents/Info.plist"
+# Stamp what kind of build this is, so the app can say so in its menu: UNIVERSAL=1 is how
+# releases are built; anything else is a development build and carries its git commit
+# ("+" when there are uncommitted changes).
+KIND=dev
+[ "${UNIVERSAL:-0}" = 1 ] && KIND=release
+COMMIT="$(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
+[ -n "$(git status --porcelain 2>/dev/null)" ] && COMMIT="$COMMIT+"
+/usr/libexec/PlistBuddy -c "Add :BuildKind string $KIND" -c "Add :GitCommit string $COMMIT" \
+    "$APP/Contents/Info.plist"
 mkdir -p "$APP/Contents/Resources"
 cp Support/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 # Prefer the stable local identity (see scripts/make-signing-identity.sh); else ad-hoc.

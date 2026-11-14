@@ -1,10 +1,12 @@
 import AppKit
+import CloseInMissionControlCore
 import ServiceManagement
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let permission = Permission()
     private lazy var welcome = WelcomeWindow(permission: permission)
+    private let version = VersionInfo(infoDictionary: Bundle.main.infoDictionary)
     private lazy var controller = Controller(isPermitted: { [permission] in permission.isGranted })
     private var statusItem: NSStatusItem!
     private let permissionItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
@@ -22,6 +24,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self?.welcome.permissionChanged(granted: granted)
         }
         refreshMenu()
+        Log.write("version \(version.logSummary)")
         controller.start()
         permission.startWatching()
         // Opening the app by hand shows the window, so a menu-bar app that otherwise stays
@@ -70,6 +73,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(debugItem)
 
         menu.addItem(.separator())
+        let versionItem = NSMenuItem(title: version.menuTitle, action: nil, keyEquivalent: "")
+        versionItem.isEnabled = false
+        menu.addItem(versionItem)
+        menu.addItem(NSMenuItem(title: "Release Notes…", action: #selector(openReleaseNotes), keyEquivalent: ""))
+        menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
         for item in menu.items + debug.items where item.action != #selector(NSApplication.terminate(_:)) {
             item.target = self
@@ -102,6 +110,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func showWelcome() { welcome.show() }
+
+    @objc private func openReleaseNotes() { NSWorkspace.shared.open(version.releaseNotesURL) }
 
     @objc private func openLogs() {
         try? FileManager.default.createDirectory(at: Probe.logsFolder, withIntermediateDirectories: true)
