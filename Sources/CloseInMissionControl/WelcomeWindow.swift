@@ -109,7 +109,10 @@ final class WelcomeWindow: NSObject {
         status.setContentHuggingPriority(.required, for: .horizontal)
         status.setContentCompressionResistancePriority(.required, for: .horizontal)
 
-        let row = NSStackView(views: [permissionIcon, text, status])
+        // The status sits against the card's right edge, mirroring the icon on the left, so
+        // "Allowed" and "Not allowed yet" end in the same place.
+        let row = NSStackView(views: [permissionIcon, text])
+        row.addView(status, in: .trailing)
         row.orientation = .horizontal
         row.alignment = .centerY
         row.spacing = 12
