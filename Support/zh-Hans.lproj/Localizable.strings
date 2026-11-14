@@ -5,6 +5,8 @@
 "menu.accessibility.notGranted" = "辅助功能：未授权";
 "menu.setUp" = "设置辅助功能…";
 "menu.launchAtLogin" = "登录时启动";
+"menu.language" = "语言";
+"menu.language.system" = "跟随系统";
 "menu.version" = "版本";
 "menu.releaseNotes" = "更新说明…";
 "menu.quit" = "退出";

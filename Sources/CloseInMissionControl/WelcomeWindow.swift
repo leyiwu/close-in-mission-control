@@ -34,6 +34,10 @@ final class WelcomeWindow: NSObject {
         update(granted: permission.isGranted)
     }
 
+    var isVisible: Bool { window.isVisible }
+
+    func close() { window.close() }
+
     func show() {
         update(granted: permission.isGranted)
         if !placed {

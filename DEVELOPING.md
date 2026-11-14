@@ -49,8 +49,12 @@ default, written next to the code, and each other language is a
 `Support/<language>.lproj/Localizable.strings` file with the same keys. `build-app.sh`
 copies every `.lproj` folder into the app, and `CFBundleLocalizations` in `Info.plist`
 lists the languages. Currently English and Simplified Chinese (`zh-Hans`); a Mac set to
-anything else falls back to English. To check a language, launch the app with
-`-AppleLanguages "(zh-Hans)"`. The Debug menu and the log are for developers and stay in
+anything else falls back to English. The menu's **Language** item saves its choice under the
+`language` key in the app's preferences (`UserDefaults`), and `tr` honours that before the
+Mac's own language list. It is the only thing the app stores. To check a language, launch
+the app with `-AppleLanguages "(zh-Hans)"`, or run
+`defaults write org.closeinmissioncontrol.app language zh-Hans` (and `defaults delete` it
+afterwards). The Debug menu and the log are for developers and stay in
 English. The Chinese README is `README.zh-CN.md`; keep it in step with `README.md`.
 
 ## Which build is running
@@ -76,7 +80,9 @@ and so do releases signed with the same identity. Releases are not notarized by 
    `build/Close-in-Mission-Control-<version>.dmg` (for people) and `.zip` (for Homebrew).
 3. Push, then create a GitHub release with both files and their SHA-256 checksums.
 4. In the `leyiwu/homebrew-tap` repository, update `version` and `sha256` in
-   `Casks/close-in-mission-control.rb` to the zip's.
+   `Casks/close-in-mission-control.rb` to the zip's, and keep its `zap trash` list in step with
+   what the app writes: the log folder and
+   `~/Library/Preferences/org.closeinmissioncontrol.app.plist`.
 
 ## Diagnostics
 

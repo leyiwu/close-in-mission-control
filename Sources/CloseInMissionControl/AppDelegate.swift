@@ -5,13 +5,27 @@ import ServiceManagement
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let permission = Permission()
-    private lazy var welcome = WelcomeWindow(permission: permission)
+    private var welcomeWindow: WelcomeWindow?
+    /// Made on first use and made again when the language changes, since its text is set
+    /// when it is built.
+    private var welcome: WelcomeWindow {
+        if let existing = welcomeWindow { return existing }
+        let created = WelcomeWindow(permission: permission)
+        welcomeWindow = created
+        return created
+    }
     private let version = VersionInfo(infoDictionary: Bundle.main.infoDictionary)
     private lazy var controller = Controller(isPermitted: { [permission] in permission.isGranted })
     private var statusItem: NSStatusItem!
     private let permissionItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
-    private let grantItem = NSMenuItem(title: tr("menu.setUp", "Set Up Accessibility…"), action: #selector(showWelcome), keyEquivalent: "")
-    private let loginItem = NSMenuItem(title: tr("menu.launchAtLogin", "Launch at Login"), action: #selector(toggleLaunchAtLogin), keyEquivalent: "")
+    private let grantItem = NSMenuItem(title: "", action: #selector(showWelcome), keyEquivalent: "")
+    private let loginItem = NSMenuItem(title: "", action: #selector(toggleLaunchAtLogin), keyEquivalent: "")
+    private let languageItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
+    private let versionItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
+    private let notesItem = NSMenuItem(title: "", action: #selector(openReleaseNotes), keyEquivalent: "")
+    private let quitItem = NSMenuItem(title: "", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+    /// "Follow System" first, then one item per language.
+    private var languageChoices: [NSMenuItem] = []
     private let dumpItem = NSMenuItem(title: "Dump Mission Control AX Tree in 5 s", action: #selector(dumpSoon), keyEquivalent: "")
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -63,6 +77,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(.separator())
         menu.addItem(loginItem)
 
+        let languages = NSMenu()
+        languages.autoenablesItems = false
+        let followSystem = NSMenuItem(title: "", action: #selector(chooseLanguage(_:)), keyEquivalent: "")
+        followSystem.representedObject = ""
+        languageChoices = [followSystem]
+        for language in LanguageChoice.available {
+            let item = NSMenuItem(title: language.name, action: #selector(chooseLanguage(_:)), keyEquivalent: "")
+            item.representedObject = language.code
+            languageChoices.append(item)
+        }
+        languageChoices.forEach(languages.addItem)
+        languageItem.submenu = languages
+        menu.addItem(languageItem)
+
         let debug = NSMenu()
         debug.autoenablesItems = false
         debug.addItem(dumpItem)
@@ -73,19 +101,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(debugItem)
 
         menu.addItem(.separator())
-        // A small grey footer line rather than a full-size row.
-        let versionTitle = version.menuTitle(versionWord: tr("menu.version", "Version"))
-        let versionItem = NSMenuItem(title: versionTitle, action: nil, keyEquivalent: "")
-        versionItem.attributedTitle = NSAttributedString(string: versionTitle, attributes: [
-            .font: NSFont.menuFont(ofSize: 11),
-            .foregroundColor: NSColor.secondaryLabelColor,
-        ])
         versionItem.isEnabled = false
         menu.addItem(versionItem)
-        menu.addItem(NSMenuItem(title: tr("menu.releaseNotes", "Release Notes…"), action: #selector(openReleaseNotes), keyEquivalent: ""))
+        menu.addItem(notesItem)
         menu.addItem(.separator())
-        menu.addItem(NSMenuItem(title: tr("menu.quit", "Quit"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
-        for item in menu.items + debug.items where item.action != #selector(NSApplication.terminate(_:)) {
+        menu.addItem(quitItem)
+        for item in menu.items + debug.items + languageChoices where item.action != #selector(NSApplication.terminate(_:)) {
             item.target = self
         }
         return menu
@@ -99,6 +120,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         grantItem.isHidden = granted
         dumpItem.isEnabled = granted
         loginItem.state = SMAppService.mainApp.status == .enabled ? .on : .off
+
+        // Everything below follows the chosen language, so this also runs after a change.
+        grantItem.title = tr("menu.setUp", "Set Up Accessibility…")
+        loginItem.title = tr("menu.launchAtLogin", "Launch at Login")
+        languageItem.title = tr("menu.language", "Language")
+        languageChoices.first?.title = tr("menu.language.system", "Follow System")
+        let chosen = LanguageChoice.current ?? ""
+        for item in languageChoices { item.state = (item.representedObject as? String) == chosen ? .on : .off }
+        // The version is a small grey footer line rather than a full-size row.
+        let versionTitle = version.menuTitle(versionWord: tr("menu.version", "Version"))
+        versionItem.title = versionTitle
+        versionItem.attributedTitle = NSAttributedString(string: versionTitle, attributes: [
+            .font: NSFont.menuFont(ofSize: 11),
+            .foregroundColor: NSColor.secondaryLabelColor,
+        ])
+        notesItem.title = tr("menu.releaseNotes", "Release Notes…")
+        quitItem.title = tr("menu.quit", "Quit")
+    }
+
+    @objc private func chooseLanguage(_ sender: NSMenuItem) {
+        let code = sender.representedObject as? String ?? ""
+        LanguageChoice.current = code.isEmpty ? nil : code
+        Log.write("language: \(code.isEmpty ? "follow system" : code)")
+        refreshMenu()
+        // The welcome window's text is fixed when it is built, so build it again.
+        let wasVisible = welcomeWindow?.isVisible ?? false
+        welcomeWindow?.close()
+        welcomeWindow = nil
+        if wasVisible { welcome.show() }
     }
 
     /// The app's only setting. Off until the user turns it on; macOS lists it under

@@ -15,8 +15,8 @@ leave it just to close a window. This adds that ×, and nothing else.
 - Close only. No minimize, no shortcuts, no settings to learn.
 - Free and open source. No network access, no tracking, no auto-update.
 - Mission Control itself is untouched; every other click works as it always has.
-- Available in English and Simplified Chinese; it follows your Mac's language. To use the other
-  one, set it for this app only in System Settings → General → Language & Region → Applications.
+- Available in English and Simplified Chinese. It follows your Mac's language, or you can pick
+  one from the menu bar icon → **Language**.
 
 Works on Apple silicon and Intel Macs with macOS 14 or later. Tested on macOS 26.
 
@@ -53,7 +53,7 @@ window shows **Allowed** as soon as you switch it on.
 Open Mission Control, point at a window, and click the × on its top-left corner. A window
 with unsaved changes shows its usual save prompt, so nothing is lost.
 
-Click the × icon in the menu bar to turn on **Launch at Login** or to **Quit**. The menu
+Click the × icon in the menu bar to turn on **Launch at Login**, change the **Language**, or **Quit**. The menu
 also shows which version you have, with a link to its release notes.
 
 ## Uninstall
@@ -70,9 +70,11 @@ also shows which version you have, with a link to its release notes.
 
        tccutil reset Accessibility org.closeinmissioncontrol.app
 
-4. If you did not use `--zap`, delete the log folder: `~/Library/Logs/CloseInMissionControl`.
+4. If you did not use `--zap`, also delete the log folder `~/Library/Logs/CloseInMissionControl` and the
+   preferences file `~/Library/Preferences/org.closeinmissioncontrol.app.plist`.
 
-That is everything. The app keeps no settings, accounts or other files.
+That is everything. The only thing the app remembers is your language choice, if you made one;
+it keeps no accounts or other files.
 
 ## Good to know
 
