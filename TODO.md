@@ -93,6 +93,7 @@
 - [x] Simplified Chinese: the menu and welcome window follow the Mac's language, and
       `README.zh-CN.md` mirrors the README
 - [x] Released as v0.1.7, with the cask's `zap trash` covering the preferences file
+      Verified on the installed 0.1.7: "Version 0.1.7", no Quit icon, Language switching.
 - [x] Menu → Language (Follow System / English / 简体中文) switches the menu and welcome
       window live and remembers the choice; the only thing the app stores
 - [x] The × fades in from 30% to full over 0.12 s (skipped when Reduce Motion is on)
