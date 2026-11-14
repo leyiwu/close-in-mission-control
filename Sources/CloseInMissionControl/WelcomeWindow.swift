@@ -27,6 +27,9 @@ final class WelcomeWindow: NSObject {
         super.init()
         window.title = "Close in Mission Control"
         window.isReleasedWhenClosed = false
+        // Appear on the Space the user is looking at, including a full-screen app's Space.
+        // Without this the window can open on another desktop and look like nothing happened.
+        window.collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary]
         build()
         update(granted: permission.isGranted)
     }
@@ -39,6 +42,8 @@ final class WelcomeWindow: NSObject {
         }
         NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
+        // Recorded so a window that "did not appear" can be told apart from one on another Space.
+        Log.write("welcome window shown: visible=\(window.isVisible), onActiveSpace=\(window.isOnActiveSpace), appActive=\(NSApp.isActive)")
     }
 
     /// Call when the permission changes. A visible window is brought forward so the user,
