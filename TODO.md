@@ -2,33 +2,13 @@
 
 ## Next
 
-- [ ] **Shorten the Quit menu item** from "Quit Close in Mission Control" to just "Quit".
-- [ ] **Simplify the Homebrew install to two lines**, as MissionClose's README does:
-
-          brew trust --tap leyiwu/tap   # Homebrew 6+ asks you to trust third-party taps once
-          brew install --cask leyiwu/tap/close-in-mission-control
-
-      The fully qualified cask name taps automatically, so the separate `brew tap` line
-      should be unnecessary, and the inline comment explains the trust step better than
-      our paragraph. To verify first: that `brew trust` works on a tap that is not yet
-      tapped, and whether the `--tap` flag is needed (we used `brew trust leyiwu/tap`).
-      Test on a Homebrew with the tap removed and untrusted before changing the README.
-- [ ] **Add an Uninstall section to the README.** Anyone trying an open-source tool should
-      be able to remove it completely. Cover: quit the app; turn off Launch at Login;
-      delete the app from Applications (or `brew uninstall --cask close-in-mission-control`,
-      plus `--zap` to remove its log folder); remove it from System Settings → Privacy &
-      Security → Accessibility; delete `~/Library/Logs/CloseInMissionControl`. State
-      plainly that the app stores nothing else.
-- [ ] **Simplify the README for everyday users.** It reads as too technical. Lead with
-      what it does, the screenshot, install and uninstall in plain words. Move "How it
-      works", the undocumented-behaviour notes, build-from-source and the layout further
-      down or into a separate file for developers.
-- [ ] **Welcome window on first launch**, replacing the current plain alert. Model: the
-      permissions page in Handy's setup. One small window that says what the app does,
-      shows the single permission it needs (Accessibility) with a one-line reason, a
-      button that opens the right System Settings page, and a status that flips to
-      "Allowed" by itself once granted. Shown only until the permission is granted, and
-      again if it is later revoked. Keep it to one screen: this app has one permission.
+- [ ] **Check the welcome window on a real first run.** Revoke the grant
+      (`tccutil reset Accessibility org.closeinmissioncontrol.app`), relaunch, press the
+      button, allow it in System Settings, and confirm the status flips to "Allowed" and the
+      window comes forward. The layout was checked in both states; the live flow was not.
+- [ ] **Check the two-line Homebrew install on a clean setup** (tap removed and untrusted).
+      Checked so far: `brew trust --tap` accepts a tap that is not tapped yet. Not checked:
+      that `brew install --cask leyiwu/tap/...` then taps it by itself.
 - [ ] **Understand how the logging works** (to study, not to change): how the app writes
       `~/Library/Logs/CloseInMissionControl/app.log`, what each kind of line records
       (Mission Control opening and closing, hovers, matches, clicks, close results), how
@@ -108,6 +88,11 @@
 - [x] MIT license, git repository, published on GitHub
 - [x] Universal release zip and `scripts/release.sh` (v0.1.0; v0.1.1 adds the app icon)
 - [x] README screenshot
+- [x] Quit menu item shortened to "Quit"
+- [x] Welcome window with a live Accessibility status, replacing the plain alert
+- [x] README rewritten for everyday users, with an Uninstall section; developer material
+      moved to `DEVELOPING.md`
+- [x] Homebrew install shortened to two lines
 - [x] QuickTime Player: answers normally with a movie open; only its "Open" file picker gets no × (correct)
 - [x] Homebrew upgrade 0.1.2 → 0.1.3 verified: no first-launch block, Accessibility grant carried over
 - [x] Unsaved-changes windows: the save prompt appears and the app switches to that window (tested with TextEdit)

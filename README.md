@@ -2,111 +2,87 @@
 
 # Close in Mission Control
 
-A tiny macOS menu-bar utility that adds one thing to Mission Control: a close button on
-the window thumbnail you are hovering.
+A tiny Mac app that adds one thing to Mission Control: a **close button on the window you
+point at**.
 
 <img src="Support/screenshot.png" width="620" alt="A window thumbnail in Mission Control with a close button on its top-left corner">
 
-Coming from Windows, where Task View has an × on every window, Mission Control has no way
-to close a window without leaving it. This adds that × and nothing else.
+Coming from Windows, where Task View has an × on every window, Mission Control makes you
+leave it just to close a window. This adds that ×, and nothing else.
 
-- Close only. No minimize, no full screen, no keyboard shortcuts.
-- No network access, no analytics, no auto-update.
-- One setting: Launch at Login (off by default).
-- Mission Control itself is untouched; every other click behaves as it always has.
+- Close only. No minimize, no shortcuts, no settings to learn.
+- Free and open source. No network access, no tracking, no auto-update.
+- Mission Control itself is untouched; every other click works as it always has.
 
-Swift + AppKit, public APIs only. Verified on macOS 26.6 with a single display.
-
-## How it works
-
-1. Mission Control is drawn by the Dock. While it is open, the Dock's Accessibility tree
-   lists each window thumbnail with a title and frame.
-2. Once the thumbnails stop moving, the hovered one is matched to a real window by title
-   and aspect ratio, and by front-to-back order when one app has several look-alikes. If
-   the match is still not unique, no button is shown: closing the wrong window is worse
-   than showing nothing.
-3. A small × is drawn in the thumbnail's corner. Mission Control does not deliver clicks
-   to other apps' windows, so an event tap (active only while Mission Control is open)
-   catches a left click that begins on the ×.
-4. The click presses the window's own close button through Accessibility, so unsaved
-   documents still show their normal save prompt. When that happens, the app switches to
-   the window (as a click on its thumbnail would) so the prompt appears on it.
-
-All of this rests on undocumented macOS behaviour, listed in [DEPENDENCIES.md](DEPENDENCIES.md).
-Expect macOS updates to break it from time to time.
+Works on Apple silicon and Intel Macs with macOS 14 or later. Tested on macOS 26.
 
 ## Install
 
-With Homebrew:
+**With Homebrew**
 
-    brew tap leyiwu/tap
-    brew trust leyiwu/tap
-    brew install --cask close-in-mission-control
+    brew trust --tap leyiwu/tap   # Homebrew asks you to trust third-party taps once
+    brew install --cask leyiwu/tap/close-in-mission-control
 
-(`brew trust` is needed on recent Homebrew versions, which refuse third-party taps until
-you trust them; skip it if your Homebrew does not have the command.) Then continue from
-step 3 below.
+**Or download it**
 
-Or by hand:
-
-1. Download `Close-in-Mission-Control-<version>.dmg` from the
+1. Download the `.dmg` from the
    [latest release](https://github.com/leyiwu/close-in-mission-control/releases/latest).
 2. Open it and drag **Close in Mission Control** onto the Applications folder next to it.
-   Run the app from Applications, not from the disk image.
-3. Open it. macOS will refuse the first time with a dialog titled **"Close in Mission
-   Control" Not Opened** ("Apple could not verify…"), because the app is not notarized by
-   Apple (that needs a paid developer account). Click **Done**, not Move to Trash. Then
-   open System Settings → Privacy & Security, scroll down, and click **Open Anyway**.
-   Or, in Terminal:
 
-       xattr -dr com.apple.quarantine "/Applications/Close in Mission Control.app"
+**First launch**
 
-4. Grant Accessibility access when asked (see [Permission](#permission)).
+macOS will not open the app the first time. You will see **"Close in Mission Control" Not
+Opened**, because the app is not notarized by Apple (that costs a yearly fee for developers).
+It is safe to continue:
 
-The app runs on Apple silicon and Intel Macs with macOS 14 or later. Releases are signed
-with the same self-signed certificate each time, so the Accessibility grant should carry
-over when you replace the app with a newer version.
+1. Click **Done**, not Move to Trash.
+2. Open System Settings → Privacy & Security, scroll down, and click **Open Anyway**.
 
-## Build from source
+(Or, in Terminal: `xattr -dr com.apple.quarantine "/Applications/Close in Mission Control.app"`)
 
-Requires macOS 14+ and the Swift 6 toolchain (Xcode or the Command Line Tools).
+A welcome window then asks for one permission, **Accessibility**. The app needs it to see
+the window thumbnails in Mission Control and to press a window's own close button. The
+window shows **Allowed** as soon as you switch it on.
 
-    ./scripts/build-app.sh
-    open "build/Close in Mission Control.app"
+## Using it
 
-Tests: `./scripts/test.sh`. Release files (`.dmg` and `.zip`): `./scripts/release.sh`.
+Open Mission Control, point at a window, and click the × on its top-left corner. A window
+with unsaved changes shows its usual save prompt, so nothing is lost.
 
-## Permission
+Click the × icon in the menu bar to turn on **Launch at Login** or to **Quit**.
 
-The app needs Accessibility access (System Settings → Privacy & Security → Accessibility)
-to read thumbnail positions, catch the click on the ×, and press a window's close button.
-It explains this before macOS asks.
+## Uninstall
 
-By default builds are ad-hoc signed, so macOS treats every rebuild as a new app and the
-grant must be given again. Run `./scripts/make-signing-identity.sh` once to create a
-self-signed identity in your login keychain; builds signed with it keep the grant.
+1. Click the × icon in the menu bar. If **Launch at Login** is ticked, untick it. Then
+   choose **Quit**.
+2. Delete the app. Either drag **Close in Mission Control** from Applications to the Trash,
+   or, if you installed it with Homebrew:
 
-## Known limitations
+       brew uninstall --cask --zap close-in-mission-control
 
-- Windows that share both a title and a shape are told apart by their front-to-back
-  order, which only works inside one app. Look-alikes in two different apps get no button.
-- Only windows on the current Space are reachable.
-- A window whose own red close button is disabled gets no button. Apps disable it while
-  something blocks closing, such as a sign-in prompt or a sheet.
-- Mission Control does not refresh while it is open, so a closed window leaves an empty
-  slot until you leave. QuickTime Player goes further: it accepts the close but keeps
-  playing until you leave Mission Control.
-- App Exposé (⌃↓) is not supported.
-- Multiple displays and Stage Manager are untested.
-- Diagnostics are written to `~/Library/Logs/CloseInMissionControl/app.log` (window titles
-  and app names; the file never leaves your Mac).
+3. Remove its permission: System Settings → Privacy & Security → Accessibility, select it,
+   and click **−**. Or in Terminal:
 
-## Layout
+       tccutil reset Accessibility org.closeinmissioncontrol.app
 
-- `Sources/CloseInMissionControlCore` — pure logic (scanner, settle detection, matcher)
-  and the thin live Accessibility wrapper
-- `Sources/CloseInMissionControl` — menu-bar shell, permission flow, overlay, event tap
-- `Tests` — unit tests for the pure logic
+4. If you did not use `--zap`, delete the log folder: `~/Library/Logs/CloseInMissionControl`.
+
+That is everything. The app keeps no settings, accounts or other files.
+
+## Good to know
+
+- **No × on a window?** The app only shows one when it is sure which window you mean. Two
+  windows with the same name and shape from *different* apps get none, and neither does a
+  window that cannot be closed right now, such as one showing a sign-in prompt.
+- **A closed window leaves an empty gap** until you leave Mission Control; macOS does not
+  redraw it. QuickTime Player goes further and keeps playing until you leave.
+- Only windows on the desktop you are viewing can be closed.
+- Not supported: App Exposé (⌃↓). Not yet tested: external monitors and Stage Manager.
+- **Privacy:** the app reads window titles and positions only to match thumbnails. It
+  writes a small log of what it did to `~/Library/Logs/CloseInMissionControl/app.log`,
+  which includes window titles and never leaves your Mac.
+- macOS updates can break this kind of app. If the × stops appearing after an update,
+  [open an issue](https://github.com/leyiwu/close-in-mission-control/issues).
 
 ## Similar projects
 
@@ -120,6 +96,12 @@ This one does a single thing. If you want more, these are good choices:
 
 Want shortcuts, minimize or quit? Use one of those. Want only a close button that never
 guesses which window you meant? This one.
+
+## For developers
+
+Build instructions, how it works and the release process are in
+[DEVELOPING.md](DEVELOPING.md). The undocumented macOS behaviour it depends on is in
+[DEPENDENCIES.md](DEPENDENCIES.md).
 
 ## License
 

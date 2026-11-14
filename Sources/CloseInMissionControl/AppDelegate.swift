@@ -4,10 +4,11 @@ import ServiceManagement
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let permission = Permission()
+    private lazy var welcome = WelcomeWindow(permission: permission)
     private lazy var controller = Controller(isPermitted: { [permission] in permission.isGranted })
     private var statusItem: NSStatusItem!
     private let permissionItem = NSMenuItem(title: "", action: nil, keyEquivalent: "")
-    private let grantItem = NSMenuItem(title: "Open Accessibility Settings…", action: #selector(openSettings), keyEquivalent: "")
+    private let grantItem = NSMenuItem(title: "Set Up Accessibility…", action: #selector(showWelcome), keyEquivalent: "")
     private let loginItem = NSMenuItem(title: "Launch at Login", action: #selector(toggleLaunchAtLogin), keyEquivalent: "")
     private let dumpItem = NSMenuItem(title: "Dump Mission Control AX Tree in 5 s", action: #selector(dumpSoon), keyEquivalent: "")
 
@@ -16,10 +17,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem.button?.image = NSImage(systemSymbolName: "xmark.circle", accessibilityDescription: "Close in Mission Control")
         statusItem.menu = buildMenu()
 
-        permission.onChange = { [weak self] _ in self?.refreshMenu() }
+        permission.onChange = { [weak self] granted in
+            self?.refreshMenu()
+            self?.welcome.permissionChanged(granted: granted)
+        }
         refreshMenu()
         controller.start()
-        permission.requestIfNeeded()
+        permission.startWatching()
+        // `--welcome` forces the window even when the permission is already granted.
+        if !permission.isGranted || CommandLine.arguments.contains("--welcome") { welcome.show() }
     }
 
     private func buildMenu() -> NSMenu {
@@ -34,13 +40,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let debug = NSMenu()
         debug.autoenablesItems = false
         debug.addItem(dumpItem)
+        debug.addItem(NSMenuItem(title: "Show Welcome Window", action: #selector(showWelcome), keyEquivalent: ""))
         debug.addItem(NSMenuItem(title: "Open Logs Folder", action: #selector(openLogs), keyEquivalent: ""))
         let debugItem = NSMenuItem(title: "Debug", action: nil, keyEquivalent: "")
         debugItem.submenu = debug
         menu.addItem(debugItem)
 
         menu.addItem(.separator())
-        menu.addItem(NSMenuItem(title: "Quit Close in Mission Control", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: "Quit", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
         for item in menu.items + debug.items where item.action != #selector(NSApplication.terminate(_:)) {
             item.target = self
         }
@@ -71,7 +78,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         refreshMenu()
     }
 
-    @objc private func openSettings() { permission.openSettings() }
+    @objc private func showWelcome() { welcome.show() }
 
     @objc private func openLogs() {
         try? FileManager.default.createDirectory(at: Probe.logsFolder, withIntermediateDirectories: true)
