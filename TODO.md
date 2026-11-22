@@ -38,6 +38,20 @@
 
 ## Bugs
 
+- [ ] **The × was missing after about three days of uptime (2026-11-22), and came back after
+      restarting the app.** The app had been started at login on 11-19 and never restarted.
+      Its log looked normal throughout (matching, `button shown`, even a successful click at
+      05:37), and the process was healthy (idle main thread, ~10 MB), so the cause is not
+      known. Whether the × was drawn at 05:37 was never confirmed. The first window-state
+      recording ended before the hover, so it proves nothing. Candidates: the panel's window
+      alpha was changed both directly and through an animator (removed), and macOS fades
+      windows in and out itself when they are ordered in and out, so a quick re-hover could
+      catch one mid-fade. Added so far: the fade moved onto the button's layer (the window
+      stays fully opaque), a check 0.15 s after each show that asks the window server whether
+      the panel is on screen (logs `overlay NOT on screen ...` and re-orders it), and log lines
+      for sleep, wake, lock and display changes. If it happens again: read the log around
+      `overlay NOT on screen` and the `system:` lines just before it before restarting the app.
+      Possible further step: `animationBehavior = .none` on the panel to stop the system fade.
 - [ ] Other apps whose thumbnail label differs from the window title may still fail if the
       shape fallback is ambiguous. Collect cases from the log.
 
@@ -45,8 +59,6 @@
 
 - [ ] An external monitor.
 - [ ] Stage Manager.
-- [ ] Launch at Login after a real restart (the toggle registers and macOS confirms
-      "Login Item Added"; an actual login has not been tried).
 
 - [ ] **Check the Chinese README's macOS wording on a Chinese-language system** (the
       first-launch dialog, "仍要打开", "隐私与安全性"). Written from memory, with the English
@@ -102,7 +114,8 @@
       Verified on the installed 0.1.6 release: "Version 0.1.6", no commit, grant kept, no
       "Open Anyway" on upgrade.
 - [x] Opening the app by hand or reopening it shows the welcome window (verified on the
-      released 0.1.5 from Applications); starting at login is meant to stay quiet, not yet seen
+      released 0.1.5 from Applications). Starting at login stays quiet: seen at a real login
+      on 2026-11-19 (`login-item event=true`, no welcome window)
 - [x] Welcome window with a live Accessibility status, replacing the plain alert; the live
       grant flow is verified (the window floats above System Settings and shows "Allowed")
 - [x] README rewritten for everyday users, with an Uninstall section; developer material

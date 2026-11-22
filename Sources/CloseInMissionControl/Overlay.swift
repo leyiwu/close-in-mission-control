@@ -16,6 +16,9 @@ final class Overlay {
     /// The origin last asked for. Compared instead of the panel's own frame, which AppKit
     /// may round, so that "did it move?" stays reliable at 20 calls a second.
     private var requestedOrigin: NSPoint?
+    /// The self-check logs its first few successes, and a failure at most every ten seconds.
+    private var checksLogged = 0
+    private var lastFailureLog = Date.distantPast
 
     init() {
         button = CloseButtonView(frame: NSRect(x: 0, y: 0, width: Self.size, height: Self.size))
@@ -35,6 +38,9 @@ final class Overlay {
         // above Mission Control. See DEPENDENCIES.md #4.
         panel.level = NSWindow.Level(rawValue: Int(CGShieldingWindowLevel()))
         panel.collectionBehavior = [.canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle]
+        // The window itself is always fully opaque. The fade is drawn on the button's layer,
+        // so no sequence of shows and hides can leave the window on screen but invisible.
+        panel.alphaValue = 1
         panel.contentView = button
     }
 
@@ -52,42 +58,71 @@ final class Overlay {
             panel.setFrameOrigin(origin)
         }
         if !isVisible {
-            panel.alphaValue = Self.fadeStartAlpha
+            panel.alphaValue = 1
             panel.orderFrontRegardless()
             isVisible = true
             fadeIn()
+            scheduleCheck()
         } else if moved {
             // Jumped straight to another thumbnail: fade in there too.
-            panel.alphaValue = Self.fadeStartAlpha
             fadeIn()
         }
     }
 
-    /// A short fade from a visible start, so the × settles in instead of popping. Skipped when the user has
-    /// asked macOS to reduce motion.
+    /// A short fade from a visible start, so the × settles in instead of popping. It only
+    /// animates the button's layer, whose resting opacity is 1: if the animation never runs
+    /// the × is simply fully visible. Skipped when the user has asked macOS to reduce motion.
     private func fadeIn() {
-        guard !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else {
-            panel.alphaValue = 1
-            return
-        }
-        NSAnimationContext.runAnimationGroup { context in
-            context.duration = Self.fadeDuration
-            context.timingFunction = CAMediaTimingFunction(name: .easeOut)
-            panel.animator().alphaValue = 1
-        }
+        guard !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion, let layer = button.layer else { return }
+        let fade = CABasicAnimation(keyPath: "opacity")
+        fade.fromValue = Self.fadeStartAlpha
+        fade.toValue = 1
+        fade.duration = Self.fadeDuration
+        fade.timingFunction = CAMediaTimingFunction(name: .easeOut)
+        layer.add(fade, forKey: "fadeIn") // replaces a fade that is still running
     }
 
     func hide() {
         guard isVisible else { return }
-        // Hiding is instant: after a click the × must vanish at once. A zero-length
-        // animation also cancels a fade that is still running.
-        NSAnimationContext.runAnimationGroup { context in
-            context.duration = 0
-            panel.animator().alphaValue = 0
-        }
+        // Hiding is instant: after a click the × must vanish at once.
         panel.orderOut(nil)
+        button.layer?.removeAnimation(forKey: "fadeIn")
         isVisible = false
         requestedOrigin = nil
+    }
+
+    // MARK: - Self-check
+
+    /// Shortly after the panel is shown, asks the window server whether it really is on
+    /// screen. The app's own bookkeeping can say "shown" while the window is not, which once
+    /// looked like a × that never appeared. If so, the details are logged and the panel is
+    /// brought forward again.
+    private func scheduleCheck() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
+            MainActor.assumeIsolated { self?.verifyOnScreen() }
+        }
+    }
+
+    private func verifyOnScreen() {
+        guard isVisible, panel.windowNumber > 0 else { return } // hidden again meanwhile
+        let id = CGWindowID(panel.windowNumber)
+        let info = (CGWindowListCopyWindowInfo([.optionIncludingWindow], id) as? [[String: Any]])?.first
+        let onscreen = (info?[kCGWindowIsOnscreen as String] as? Bool) ?? false
+        let alpha = (info?[kCGWindowAlpha as String] as? Double) ?? -1
+        if onscreen, alpha > 0.5 {
+            if checksLogged < 3 {
+                checksLogged += 1
+                Log.write("overlay check ok (on screen, alpha \(alpha))")
+            }
+            return
+        }
+        if Date().timeIntervalSince(lastFailureLog) > 10 {
+            lastFailureLog = Date()
+            Log.write("overlay NOT on screen although shown: onscreen=\(onscreen), alpha=\(alpha), "
+                + "level=\(panel.level.rawValue), frame=\(NSStringFromRect(panel.frame)), "
+                + "appHidden=\(NSApp.isHidden), screens=\(NSScreen.screens.count)")
+        }
+        panel.orderFrontRegardless()
     }
 }
 
@@ -98,6 +133,13 @@ private final class OverlayPanel: NSPanel {
 
 private final class CloseButtonView: NSView {
     var highlighted = false { didSet { needsDisplay = true } }
+
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+        wantsLayer = true // the fade animates this view's layer
+    }
+
+    required init?(coder: NSCoder) { fatalError("not used") }
 
     override func draw(_ dirtyRect: NSRect) {
         // Silver disc that turns grey under the pointer, like a tint laid over it.

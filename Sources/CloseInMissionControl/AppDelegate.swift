@@ -41,6 +41,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         refreshMenu()
         Log.write("version \(version.logSummary)")
+        observeSystemEvents()
         controller.start()
         permission.startWatching()
         // Opening the app by hand shows the window, so a menu-bar app that otherwise stays
@@ -48,6 +49,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // `--welcome` forces the window.
         let atLogin = launchedAtLogin()
         if !permission.isGranted || !atLogin || CommandLine.arguments.contains("--welcome") { welcome.show() }
+    }
+
+    /// Writes sleep, wake, lock and display changes to the log, so that if the × ever stops
+    /// showing, the log can say what happened to the Mac just before.
+    private func observeSystemEvents() {
+        let events: [(Notification.Name, String)] = [
+            (NSWorkspace.willSleepNotification, "Mac going to sleep"),
+            (NSWorkspace.didWakeNotification, "Mac woke"),
+            (NSWorkspace.screensDidSleepNotification, "screens went to sleep"),
+            (NSWorkspace.screensDidWakeNotification, "screens woke"),
+            (NSWorkspace.sessionDidResignActiveNotification, "user session inactive (lock or user switch)"),
+            (NSWorkspace.sessionDidBecomeActiveNotification, "user session active"),
+        ]
+        for (name, text) in events {
+            NSWorkspace.shared.notificationCenter.addObserver(forName: name, object: nil, queue: .main) { _ in
+                Log.write("system: \(text)")
+            }
+        }
+        NotificationCenter.default.addObserver(
+            forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main
+        ) { _ in
+            let count = MainActor.assumeIsolated { NSScreen.screens.count }
+            Log.write("system: display setup changed, \(count) screen(s)")
+        }
     }
 
     /// Opening the app again while it is running (Finder, Spotlight, Launchpad).

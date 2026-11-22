@@ -89,3 +89,9 @@ and so do releases signed with the same identity. Releases are not notarized by 
 The app appends to `~/Library/Logs/CloseInMissionControl/app.log`: Mission Control opening
 and closing, hovers, matches, clicks and close results. **Debug → Dump Mission Control AX
 Tree in 5 s** writes the Dock's Accessibility tree to the same folder.
+
+Other lines worth knowing: `overlay check ok` / `overlay NOT on screen although shown ...`
+(0.15 s after the × is shown, the window server is asked whether it really is on screen;
+a failure logs the details and brings the panel forward again), and `system: ...` for
+sleep, wake, lock and display changes. If the × ever goes missing, read those before
+restarting the app.
