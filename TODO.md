@@ -38,20 +38,21 @@
 
 ## Bugs
 
-- [ ] **The × was missing after about three days of uptime (2026-11-22), and came back after
-      restarting the app.** The app had been started at login on 11-19 and never restarted.
-      Its log looked normal throughout (matching, `button shown`, even a successful click at
-      05:37), and the process was healthy (idle main thread, ~10 MB), so the cause is not
-      known. Whether the × was drawn at 05:37 was never confirmed. The first window-state
-      recording ended before the hover, so it proves nothing. Candidates: the panel's window
-      alpha was changed both directly and through an animator (removed), and macOS fades
-      windows in and out itself when they are ordered in and out, so a quick re-hover could
-      catch one mid-fade. Added so far: the fade moved onto the button's layer (the window
-      stays fully opaque), a check 0.15 s after each show that asks the window server whether
-      the panel is on screen (logs `overlay NOT on screen ...` and re-orders it), and log lines
-      for sleep, wake, lock and display changes. If it happens again: read the log around
-      `overlay NOT on screen` and the `system:` lines just before it before restarting the app.
-      Possible further step: `animationBehavior = .none` on the panel to stop the system fade.
+- [ ] **After the Mac sleeps and wakes, the app's windows can stop reaching the screen**
+      (seen 2026-11-22 and 2026-11-23 on macOS 26.6). The process keeps running and
+      everything that is not a window keeps working: the log, Accessibility, and the click
+      on the corner (so a window still closes), but there is no ×, no menu-bar icon, and not
+      even the welcome window gets on screen (window server: `onscreen=false`, alpha 1).
+      Restarting the app fixes it. The macOS-side cause is unknown. Not a stale overlay: a
+      plain welcome window failed the same way.
+      Built a self-heal (v0.1.8 candidate): after launch, wake, screen wake and unlock the app
+      puts a fresh 1×1 window on screen and asks the window server whether it got there;
+      three tries four seconds apart, then it restarts itself (never twice within 120 s). If
+      only the × panel fails while a fresh window works, it rebuilds the panel. Checked with
+      a simulated failure (`--simulate-broken`): retries, relaunch, quiet start, loop guard.
+      **Still to check: a real sleep and wake.** Read the log for `system: Mac woke`, then
+      `window check (...)`, `relaunching`. If the check says ok but the × is missing, the
+      cause is something else.
 - [ ] Other apps whose thumbnail label differs from the window title may still fail if the
       shape fallback is ambiguous. Collect cases from the log.
 

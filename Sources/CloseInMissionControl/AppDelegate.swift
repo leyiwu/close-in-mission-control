@@ -42,30 +42,99 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         refreshMenu()
         Log.write("version \(version.logSummary)")
         observeSystemEvents()
+        controller.onOverlaySuspect = { [weak self] in self?.overlaySuspect() }
         controller.start()
         permission.startWatching()
         // Opening the app by hand shows the window, so a menu-bar app that otherwise stays
         // silent does not look like it failed to start. Starting at login stays quiet.
         // `--welcome` forces the window.
         let atLogin = launchedAtLogin()
-        if !permission.isGranted || !atLogin || CommandLine.arguments.contains("--welcome") { welcome.show() }
+        // A copy started by `Relauncher` also stays quiet: the user never asked to open it.
+        let quiet = atLogin || Relauncher.wasRelaunched
+        if !permission.isGranted || !quiet || CommandLine.arguments.contains("--welcome") { welcome.show() }
+        scheduleHealthCheck("launch", after: 5)
+    }
+
+    // MARK: - Window health
+
+    private var healthCheckPending = false
+
+    /// Checks, after `delay`, that this process can still put a window on screen. Several
+    /// triggers within the delay share one check.
+    private func scheduleHealthCheck(_ reason: String, after delay: TimeInterval) {
+        guard !healthCheckPending else { return }
+        healthCheckPending = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+            MainActor.assumeIsolated {
+                self?.healthCheckPending = false
+                self?.checkWindows(reason: reason, attempt: 1)
+            }
+        }
+    }
+
+    /// Up to three tries four seconds apart, since the system needs a moment after a wake or an
+    /// unlock. Only then is the app restarted.
+    private func checkWindows(reason: String, attempt: Int) {
+        guard WindowHealth.displayIsAwake, !WindowHealth.screenIsLocked else {
+            Log.write("window check (\(reason)) skipped, will run again on the next wake or unlock: \(WindowHealth.describe())")
+            return
+        }
+        WindowHealth.probe { [weak self] ok in
+            guard let self else { return }
+            if ok {
+                Log.write("window check (\(reason)) ok" + (attempt > 1 ? " on try \(attempt)" : ""))
+                return
+            }
+            Log.write("window check (\(reason)) FAILED on try \(attempt): \(WindowHealth.describe())")
+            if attempt < 3 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 4) { [weak self] in
+                    MainActor.assumeIsolated { self?.checkWindows(reason: reason, attempt: attempt + 1) }
+                }
+            } else {
+                Relauncher.relaunch(reason: "windows cannot reach the screen (\(reason))")
+            }
+        }
+    }
+
+    /// The × was shown but is not on screen. A new window tells the two possible faults apart.
+    private func overlaySuspect() {
+        WindowHealth.probe { [weak self] ok in
+            guard let self else { return }
+            if ok {
+                Log.write("a new window reaches the screen but the × panel does not: rebuilding the panel")
+                self.controller.rebuildOverlay()
+            } else {
+                Log.write("a new window does not reach the screen either")
+                self.scheduleHealthCheck("× not on screen", after: 0)
+            }
+        }
     }
 
     /// Writes sleep, wake, lock and display changes to the log, so that if the × ever stops
     /// showing, the log can say what happened to the Mac just before.
     private func observeSystemEvents() {
-        let events: [(Notification.Name, String)] = [
-            (NSWorkspace.willSleepNotification, "Mac going to sleep"),
-            (NSWorkspace.didWakeNotification, "Mac woke"),
-            (NSWorkspace.screensDidSleepNotification, "screens went to sleep"),
-            (NSWorkspace.screensDidWakeNotification, "screens woke"),
-            (NSWorkspace.sessionDidResignActiveNotification, "user session inactive (lock or user switch)"),
-            (NSWorkspace.sessionDidBecomeActiveNotification, "user session active"),
+        // The last value is how long to wait before checking that windows still reach the screen.
+        let events: [(Notification.Name, String, TimeInterval?)] = [
+            (NSWorkspace.willSleepNotification, "Mac going to sleep", nil),
+            (NSWorkspace.didWakeNotification, "Mac woke", 5),
+            (NSWorkspace.screensDidSleepNotification, "screens went to sleep", nil),
+            (NSWorkspace.screensDidWakeNotification, "screens woke", 5),
+            (NSWorkspace.sessionDidResignActiveNotification, "user session inactive (lock or user switch)", nil),
+            (NSWorkspace.sessionDidBecomeActiveNotification, "user session active", 3),
         ]
-        for (name, text) in events {
-            NSWorkspace.shared.notificationCenter.addObserver(forName: name, object: nil, queue: .main) { _ in
+        for (name, text, check) in events {
+            NSWorkspace.shared.notificationCenter.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
                 Log.write("system: \(text)")
+                if let check { MainActor.assumeIsolated { self?.scheduleHealthCheck(text, after: check) } }
             }
+        }
+        // Posted when the lock screen is dismissed. Not documented by Apple; used only to run
+        // the check at a moment when windows are expected to be visible.
+        DistributedNotificationCenter.default().addObserver(
+            forName: Notification.Name("com.apple.screenIsUnlocked"), object: nil, queue: .main
+        ) { [weak self] _ in
+            Log.write("system: screen unlocked")
+            MainActor.assumeIsolated { self?.scheduleHealthCheck("screen unlocked", after: 2) }
         }
         NotificationCenter.default.addObserver(
             forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main
@@ -91,7 +160,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 == OSType(keyAELaunchedAsLogInItem)
         let enabled = SMAppService.mainApp.status == .enabled
         let uptime = ProcessInfo.processInfo.systemUptime
-        Log.write("launch: login-item event=\(byEvent), launch-at-login on=\(enabled), uptime=\(Int(uptime))s")
+        Log.write("launch: login-item event=\(byEvent), launch-at-login on=\(enabled), relaunched=\(Relauncher.wasRelaunched), uptime=\(Int(uptime))s")
         return byEvent || (enabled && uptime < 180)
     }
 

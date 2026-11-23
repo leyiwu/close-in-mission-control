@@ -28,9 +28,15 @@ final class Controller {
     /// Control keeps showing them as empty slots, so they must never match a window.
     private var closedSlots: [Thumbnail] = []
 
+    /// Forwarded from the overlay: the × was shown but is not on screen.
+    var onOverlaySuspect: (() -> Void)?
+
+    func rebuildOverlay() { overlay.rebuild() }
+
     init(isPermitted: @escaping () -> Bool) {
         self.isPermitted = isPermitted
         clicks.onClick = { [weak self] in self?.closeTarget() }
+        overlay.onSuspect = { [weak self] in self?.onOverlaySuspect?() }
         directory.onUpdate = { [weak self] pid, fresh in
             guard let self else { return }
             let before = self.windows.count

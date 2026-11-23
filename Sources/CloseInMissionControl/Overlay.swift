@@ -10,8 +10,12 @@ final class Overlay {
     /// strength: a response that feels immediate, with a motion that can still be seen.
     private static let fadeStartAlpha: CGFloat = 0.3
     private static let fadeDuration: TimeInterval = 0.12
-    private let panel: NSPanel
-    private let button: CloseButtonView
+    private var panel: NSPanel
+    private var button: CloseButtonView
+    /// Called (at most every ten seconds) when the window server does not consider the panel
+    /// to be on screen although it was just shown.
+    var onSuspect: (() -> Void)?
+    private var lastSuspect = Date.distantPast
     private(set) var isVisible = false
     /// The origin last asked for. Compared instead of the panel's own frame, which AppKit
     /// may round, so that "did it move?" stays reliable at 20 calls a second.
@@ -21,8 +25,14 @@ final class Overlay {
     private var lastFailureLog = Date.distantPast
 
     init() {
-        button = CloseButtonView(frame: NSRect(x: 0, y: 0, width: Self.size, height: Self.size))
-        panel = OverlayPanel(
+        let made = Self.makePanel()
+        panel = made.panel
+        button = made.button
+    }
+
+    private static func makePanel() -> (panel: NSPanel, button: CloseButtonView) {
+        let button = CloseButtonView(frame: NSRect(x: 0, y: 0, width: Self.size, height: Self.size))
+        let panel = OverlayPanel(
             contentRect: NSRect(x: 0, y: 0, width: Self.size, height: Self.size),
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
@@ -42,6 +52,20 @@ final class Overlay {
         // so no sequence of shows and hides can leave the window on screen but invisible.
         panel.alphaValue = 1
         panel.contentView = button
+        return (panel, button)
+    }
+
+    /// Replaces the panel with a brand-new one, for when only this window has gone stale.
+    func rebuild() {
+        let highlighted = button.highlighted
+        panel.orderOut(nil)
+        let made = Self.makePanel()
+        panel = made.panel
+        button = made.button
+        button.highlighted = highlighted
+        isVisible = false
+        requestedOrigin = nil
+        Log.write("overlay panel rebuilt")
     }
 
     func setHighlighted(_ highlighted: Bool) {
@@ -120,9 +144,15 @@ final class Overlay {
             lastFailureLog = Date()
             Log.write("overlay NOT on screen although shown: onscreen=\(onscreen), alpha=\(alpha), "
                 + "level=\(panel.level.rawValue), frame=\(NSStringFromRect(panel.frame)), "
-                + "appHidden=\(NSApp.isHidden), screens=\(NSScreen.screens.count)")
+                + WindowHealth.describe())
         }
         panel.orderFrontRegardless()
+        // Not on screen at all, with the window itself fully opaque, is the fault seen after a
+        // sleep. (A near-zero alpha while on screen is only macOS fading the window in or out.)
+        if !onscreen, alpha > 0.5, Date().timeIntervalSince(lastSuspect) > 10 {
+            lastSuspect = Date()
+            onSuspect?()
+        }
     }
 }
 

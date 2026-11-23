@@ -91,7 +91,14 @@ and closing, hovers, matches, clicks and close results. **Debug → Dump Mission
 Tree in 5 s** writes the Dock's Accessibility tree to the same folder.
 
 Other lines worth knowing: `overlay check ok` / `overlay NOT on screen although shown ...`
-(0.15 s after the × is shown, the window server is asked whether it really is on screen;
-a failure logs the details and brings the panel forward again), and `system: ...` for
-sleep, wake, lock and display changes. If the × ever goes missing, read those before
-restarting the app.
+(0.15 s after the × is shown, the window server is asked whether it really is on screen),
+and `system: ...` for sleep, wake, lock and display changes.
+
+**Window health.** After a sleep, the app has been seen to keep running while none of its
+windows reached the screen. `WindowHealth` therefore puts a fresh 1×1 window on screen and asks
+the window server whether it arrived, after launch, wake, screen wake and unlock
+(`window check (...) ok` / `FAILED on try N`). After three failed tries four seconds apart
+it restarts itself through `Relauncher` (`open -n ... --args --relaunched-at <time>`; a
+restart never follows another within 120 s, and the new copy starts quietly). If only the ×
+panel is missing while a fresh window works, the panel is rebuilt. `--simulate-broken` makes
+every probe fail, to test the restart without a sleep.

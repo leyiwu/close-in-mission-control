@@ -83,6 +83,8 @@ it keeps no accounts or other files.
   window that cannot be closed right now, such as one showing a sign-in prompt.
 - **A closed window leaves an empty gap** until you leave Mission Control; macOS does not
   redraw it. QuickTime Player goes further and keeps playing until you leave.
+- After your Mac wakes from sleep the app checks that it can still show its ×, and restarts
+  itself if it cannot. You may see the menu-bar icon blink once.
 - Only windows on the desktop you are viewing can be closed.
 - Not supported: App Exposé (⌃↓). Not yet tested: external monitors and Stage Manager.
 - **Privacy:** the app reads window titles and positions only to match thumbnails. It
