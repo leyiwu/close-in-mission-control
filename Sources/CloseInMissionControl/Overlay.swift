@@ -51,6 +51,11 @@ final class Overlay {
         // The window itself is always fully opaque. The fade is drawn on the button's layer,
         // so no sequence of shows and hides can leave the window on screen but invisible.
         panel.alphaValue = 1
+        // No system fade when the panel is ordered in or out. macOS otherwise fades it itself,
+        // and a quick re-hover then lands in the middle of the previous fade-out: the panel is
+        // on screen but at alpha ~0, so the × is invisible (seen four times in the log). The
+        // visible fade-in is the layer animation in `fadeIn()`.
+        panel.animationBehavior = .none
         panel.contentView = button
         return (panel, button)
     }

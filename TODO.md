@@ -50,6 +50,12 @@
       three tries four seconds apart, then it restarts itself (never twice within 120 s). If
       only the × panel fails while a fresh window works, it rebuilds the panel. Checked with
       a simulated failure (`--simulate-broken`): retries, relaunch, quiet start, loop guard.
+      A separate fault, also fixed: macOS fades a window in and out when it is ordered in or
+      out, and a quick re-hover landed mid-fade-out, so the panel was on screen at alpha ~0 and
+      the × invisible (4 times in the log on 11-22 and 11-23). `animationBehavior = .none`
+      removed the system fade; afterwards 0 such alarms in 5 Mission Control opens (small sample).
+      A 3-minute sleep on 11-23 did NOT trigger the main fault (the check after wake said ok),
+      and both real failures followed long sleeps (hours), so a longer sleep is probably needed.
       **Still to check: a real sleep and wake.** Read the log for `system: Mac woke`, then
       `window check (...)`, `relaunching`. If the check says ok but the × is missing, the
       cause is something else.
