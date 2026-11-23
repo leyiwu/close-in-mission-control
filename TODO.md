@@ -45,7 +45,7 @@
       even the welcome window gets on screen (window server: `onscreen=false`, alpha 1).
       Restarting the app fixes it. The macOS-side cause is unknown. Not a stale overlay: a
       plain welcome window failed the same way.
-      Built a self-heal (v0.1.8 candidate): after launch, wake, screen wake and unlock the app
+      Built a self-heal, released as v0.1.8 (2026-11-23): after launch, wake, screen wake and unlock the app
       puts a fresh 1×1 window on screen and asks the window server whether it got there;
       three tries four seconds apart, then it restarts itself (never twice within 120 s). If
       only the × panel fails while a fresh window works, it rebuilds the panel. Checked with
